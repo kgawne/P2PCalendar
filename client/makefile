@@ -1,7 +1,7 @@
-all: therm
+all: myCal
 
-therm: tclient.c
-	gcc tclient.c -o therm
+myCal: tlient.c
+	gcc tclient.c -o myCal -lpthread -Wall
 
 clean:
-	rm -f therm
+	rm -f myCal

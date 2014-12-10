@@ -1,23 +1,27 @@
 //Kelly D Gawne and Jack Magiera
-// Thermo sensor client, runs every 30 minutes
+// Calendar client. Takes in cmd line input
+//compile: make
+//run: ./myCal <arguments>
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <string.h>
+#include <netdb.h>
+#include <fcntl.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include "sensor_data.h"
+#include <time.h>
+#include <pthread.h>
 
-//Detect 1, 0, or 2 sensors
+#define DEBUG 0
 
-//Read in config file
+int main(int argc, char *argv[]){
 
-//Read thermo sensors
+	//Open connection to server NOTE: hard-coded to student02 in order to 
 
-//Create data structure
-
-//Fill in data structure (need 2 if 2 sensors)
-
-//Connect to server
-
-//Send data structure to server
-
-//If error, write to log.
-
-//Use cron to run again in 30 minutes.
-
-//Exit, cron will reawaken when necessary
+	return 0;
+}
