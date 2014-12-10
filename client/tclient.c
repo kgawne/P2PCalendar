@@ -33,6 +33,12 @@ int main(int argc, char *argv[]){
 
 	getaddrinfo("student00.cse.nd.edu","9770", &hints, &res);
 
+	if ((socket_fd = socket(res->ai_family,res->ai_socktype,res->ai_protocol)) == -1){
+		printf("Socket Failure\n");
+		exit(1);
+	}
+
+	//Connect to server
 	char local_host[1024];
 	gethostname(local_host, 1023);
 
