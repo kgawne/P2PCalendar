@@ -1,0 +1,15 @@
+PLAN OF ATTACK
+
+Build iterative server
+Build multi-threaded server
+Build simple client
+
+Design XML data structures
+Design XML interactions
+Design storage
+
+Add event
+Remove event
+Update event
+Get event
+Getslow event
