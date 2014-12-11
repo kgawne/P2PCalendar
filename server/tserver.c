@@ -85,6 +85,9 @@ void *thread_handler(void *sockfd){
  	//Get the socket descriptor
     int clientfd = *(int*)sockfd;
     xmlChar *buffer = malloc(sizeof(xmlChar) * 1024) ;
+    xmlDocPtr in_command;
+    xmlNodePtr cur;
+    xmlChar * command;
 
     //Fully connected! Yay!
     if (DEBUG) printf("Inside thread\n");
@@ -99,6 +102,13 @@ void *thread_handler(void *sockfd){
 	bzero(buffer, MAXBUFLEN);
 	recv (clientfd, buffer, sizeof(xmlChar) * 1024, 0);
 	if(DEBUG) printf("server: received xml----%s\n", buffer);
+
+	in_command = xmlParseDoc(buffer);
+	cur = xmlDocGetRootElement(in_command);
+	strcpy(command,cur->name);
+	if(DEBUG) printf("server: command: %s\n", command);
+
+
 
 
 

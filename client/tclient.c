@@ -132,8 +132,8 @@ int main(int argc, char *argv[]){
 		endhrStr[2] = '\0';
 		endminStr[2] = '\0';
 
-		printf("%s/%s/%s %s:%s\n", monthStr, dayStr, yearStr, hourStr, minStr );
-		printf("%d/%d/%d %d:%d\n", end_mon, end_day, end_yr, end_hr, end_min );
+		// printf("%s/%s/%s %s:%s\n", monthStr, dayStr, yearStr, hourStr, minStr );
+		// printf("%d/%d/%d %d:%d\n", end_mon, end_day, end_yr, end_hr, end_min );
 
 		toSend = xmlNewDoc("1.0");
 		root = xmlNewNode(NULL,"add");
