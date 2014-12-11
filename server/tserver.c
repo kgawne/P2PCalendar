@@ -85,14 +85,11 @@ int bindToPort(char* portNum){ //bind to that port. Returns sockListen_fd
 void *thread_handler(void *sockfd){
  	//Get the socket descriptor
     int clientfd = *(int*)sockfd;
-<<<<<<< HEAD
-    char buffer[MAXBUFLEN];
-=======
     xmlChar *buffer = malloc(sizeof(xmlChar) * 1024) ;
     xmlDocPtr in_command;
     xmlNodePtr cur;
     xmlChar * command;
->>>>>>> a43566a569e5a4b6a7bcf09d524efef796459ae2
+
 
     struct stat st = {0};
 
