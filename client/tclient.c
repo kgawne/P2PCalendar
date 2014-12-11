@@ -301,23 +301,17 @@ int main(int argc, char *argv[]){
 
 	if ( !strcmp( cmd, "add") || !strcmp(cmd, "remove") || !strcmp(cmd, "update")){
 		//Get response size
-		uint32_t Nxml_size, xml_size;
-		recv( serverfd, &Nxml_size, sizeof(uint32_t), 0);
-		xml_size = ntohl(Nxml_size);
+		// uint32_t Nxml_size, xml_size;
+		// recv( serverfd, &Nxml_size, sizeof(uint32_t), 0);
+		// xml_size = ntohl(Nxml_size);
 
 		//Get response data
 		bzero(buffer, MAXBUFLEN);
 		recv (serverfd, buffer, sizeof(xmlChar) * MAXBUFLEN, 0);
 
 		//Print response
-		if(DEBUG) printf("client: received response----%s\n", buffer);
-		xmlDocPtr respDoc = xmlParseDoc(buffer);
-		xmlNodePtr cur = xmlDocGetRootElement(respDoc)->xmlChildrenNode->next; //printText
-		puts("here");
-		char printBuf [MAXBUFLEN];
-		//strcpy(printBuf, (char*) xmlNodeListGetString(respDoc, cur->xmlChildrenNode,1));
-		puts("there");
-		printf("%s\n", printBuf);
+
+		if(DEBUG) printf("server: received - %s\n", buffer);
 		//???
 
 	}else if (strcmp(cmd, "get") || strcmp(cmd, "getslow")){
@@ -325,7 +319,7 @@ int main(int argc, char *argv[]){
 		uint16_t numEvents, NnumEvents;
 		recv( serverfd, &NnumEvents, sizeof(uint16_t), 0);
 		numEvents = ntohs(NnumEvents);
-		if(DEBUG) printf("server: received num: %d\n", numEvents);
+		// if(DEBUG) printf("server: received num: %d\n", numEvents);
 		if( numEvents == 0){
 			printf("There are no applicable events\n");
 		}else{
@@ -333,9 +327,11 @@ int main(int argc, char *argv[]){
 			for ( i = 0; i < numEvents; i++){
 
 				//Get event size
-				uint32_t Nxml_size, xml_size;
-				recv( serverfd, &Nxml_size, sizeof(uint32_t), 0);
-				xml_size = ntohl(Nxml_size);
+				// uint32_t Nxml_size, xml_size;
+				// recv( serverfd, &Nxml_size, sizeof(uint32_t), 0);
+
+				// xml_size = ntohl(Nxml_size);
+				// printf("%d\n",xml_size);
 
 				//Get event data
 				bzero(buffer, MAXBUFLEN);
