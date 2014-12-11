@@ -82,16 +82,15 @@ int bindToPort(char* portNum){ //bind to that port. Returns sockListen_fd
 	return sockListen_fd;
 }
 
+int conflictExists( xmlDocPtr doc1, xmlDocPtr doc2){
+	if ( getTime(doc1, 0) < getTime(doc2, 1)) return 1; //if first starts before second ends
+	else if ( getTime(doc2, 0) < getTime(doc1, 1)) return 1; //if second starts before first ends
+}
+
 void *thread_handler(void *sockfd){
  	//Get the socket descriptor
     int clientfd = *(int*)sockfd;
-<<<<<<< HEAD
 
-    xmlChar *buffer = malloc(sizeof(xmlChar) * MAXBUFLEN) ;
-    xmlDocPtr in_command;
-    xmlNodePtr cur;
-    xmlChar * command;
-=======
     xmlChar *buffer = malloc(sizeof(xmlChar) * 1024) ;
     xmlDocPtr in_command;
     xmlNodePtr cur;
@@ -99,9 +98,7 @@ void *thread_handler(void *sockfd){
     FILE * calendar;
     char * calendarPath;
 
-
     struct stat st = {0};
->>>>>>> e6c9d12bef74650d870ff76affb1e0cfe4b47d26
 
     //Fully connected! Yay!
     if (DEBUG) printf("Inside thread\n");
@@ -189,7 +186,7 @@ void iterative_handler(void *sockfd){
 
 }
 
-int main(int argc, char* argv[]){ //remove arg input...?
+int main(int argc, char* argv[]){
 
 	//Parse cmd line for server options
 	if (argc != 3){
@@ -209,7 +206,7 @@ int main(int argc, char* argv[]){ //remove arg input...?
 	}
 
 
-	//Bind to port 9770
+	//Bind to given port
 	char* portNum = argv[2];
 	int sockListen_fd = bindToPort(portNum);
 	int err = 0;
