@@ -71,7 +71,7 @@ int bindToPort(char* portNum){ //bind to that port. Returns sockListen_fd
 
 	if (p == NULL) {
 		puts("Failed to bind with socket.");
-		return 1;
+		exit(1);
 	}
 
 	freeaddrinfo(serverInfo);
@@ -112,7 +112,7 @@ int main(int argc, char* argv[]){ //remove arg input...?
 
 
 	//Bind to port 9770
-	char* portNum = "9770";
+	char* portNum = "9005";
 	socklen_t sockListen_fd = bindToPort(portNum);
 	int err = 0;
 
