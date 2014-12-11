@@ -92,7 +92,7 @@ int main(int argc, char *argv[]){
 			|| day > monthDays[mon]
 			|| hr > 23
 			|| min > 59){
-			printf("Improper date sent.\n");
+			printf("Improper date entered.\n");
 			return 1;
 		}
 		int lenMins = atof(argv[5]) * 60;
@@ -153,13 +153,149 @@ int main(int argc, char *argv[]){
 		xmlNewTextChild(cur, NULL, "length", argv[5]);
 		xmlNewTextChild(cur, NULL, "name", argv[6]);
 
-		
 		xmlDocDumpMemory(toSend,&doc,&xml_size);
 		xmlSaveFormatFile("sending.xml", toSend, 1);
 
+	} else if (strcmp(argv[2],"remove") == 0){
+
+		if (argc != 5){
+			printf("Syntax for remove: ./myCal <calendar> remove <mmddyy> <hhmm>\n");
+			return 1;
+		}
+		if (strlen(argv[3]) != 6 || strlen(argv[4]) != 4){
+			printf("Syntax for <date>: mmddyy %d\nSyntax for <time>: hhmm %d\n", strlen(argv[3]), strlen(argv[4]));
+			return 1;
+		}
+
+		char monthStr[3];
+		char dayStr[3];
+		char yearStr[3];
+		char hourStr[3];
+		char minStr[3];
+
+		memcpy(monthStr, &(argv[3][0]),2);
+		memcpy(dayStr, &(argv[3][2]), 2);
+		memcpy(yearStr, &(argv[3][4]), 2);
+		memcpy(hourStr, &argv[4][0],2);
+		memcpy(minStr, &(argv[4][2]), 2);
+
+		monthStr[2] = '\0';
+		dayStr[2] = '\0';
+		yearStr[2] = '\0';
+		hourStr[2] = '\0';
+		minStr[2] = '\0';
+
+		toSend = xmlNewDoc("1.0");
+		root = xmlNewNode(NULL,"remove");
+		xmlDocSetRootElement(toSend,root);
+		cur = xmlDocGetRootElement(toSend);
+		xmlNewTextChild(cur, NULL, "monthStr", monthStr);
+		xmlNewTextChild(cur, NULL, "dayStr", dayStr);
+		xmlNewTextChild(cur, NULL, "yearStr", yearStr);
+		xmlNewTextChild(cur, NULL, "hourStr", hourStr);
+		xmlNewTextChild(cur, NULL, "minStr", minStr);
+
+		xmlDocDumpMemory(toSend,&doc,&xml_size);
+		xmlSaveFormatFile("sending.xml", toSend, 1);
+
+	} else if (strcmp(argv[2],"update") == 0) {
+
+		if (argc != 7){
+			printf("Syntax for update: ./myCal <calendar> update <mmddyy> <hhmm> <length> <name>\n");
+			return 1;
+		}
+		if (strlen(argv[3]) != 6 || strlen(argv[4]) != 4){
+			printf("Syntax for <date>: mmddyy %d\nSyntax for <time>: hhmm %d\n", strlen(argv[3]), strlen(argv[4]));
+			return 1;
+		}
+
+		char monthStr[3];
+		char dayStr[3];
+		char yearStr[3];
+		char hourStr[3];
+		char minStr[3];
+
+		memcpy(monthStr, &(argv[3][0]),2);
+		memcpy(dayStr, &(argv[3][2]), 2);
+		memcpy(yearStr, &(argv[3][4]), 2);
+		memcpy(hourStr, &argv[4][0],2);
+		memcpy(minStr, &(argv[4][2]), 2);
+
+		monthStr[2] = '\0';
+		dayStr[2] = '\0';
+		yearStr[2] = '\0';
+		hourStr[2] = '\0';
+		minStr[2] = '\0';
+
+		toSend = xmlNewDoc("1.0");
+		root = xmlNewNode(NULL,"update");
+		xmlDocSetRootElement(toSend,root);
+		cur = xmlDocGetRootElement(toSend);
+		xmlNewTextChild(cur, NULL, "monthStr", monthStr);
+		xmlNewTextChild(cur, NULL, "dayStr", dayStr);
+		xmlNewTextChild(cur, NULL, "yearStr", yearStr);
+		xmlNewTextChild(cur, NULL, "hourStr", hourStr);
+		xmlNewTextChild(cur, NULL, "minStr", minStr);
+		xmlNewTextChild(cur, NULL, "length", argv[5]);
+		xmlNewTextChild(cur, NULL, "name", argv[6]);
+
+		xmlDocDumpMemory(toSend,&doc,&xml_size);
+		xmlSaveFormatFile("sending.xml", toSend, 1);
+
+	} else if (strcmp(argv[2],"get") == 0) {
+
+		if (argc != 4){
+			printf("Syntax for get: ./myCal <calendar> get <mmddyy>\n");
+			return 1;
+		}
+		if (strlen(argv[3]) != 6 ){
+			printf("Syntax for <date>: mmddyy %d\n", strlen(argv[3]));
+			return 1;
+		}
+
+		char monthStr[3];
+		char dayStr[3];
+		char yearStr[3];
+
+		memcpy(monthStr, &(argv[3][0]),2);
+		memcpy(dayStr, &(argv[3][2]), 2);
+		memcpy(yearStr, &(argv[3][4]), 2);
+
+		monthStr[2] = '\0';
+		dayStr[2] = '\0';
+		yearStr[2] = '\0';
+
+		toSend = xmlNewDoc("1.0");
+		root = xmlNewNode(NULL,"get");
+		xmlDocSetRootElement(toSend,root);
+		cur = xmlDocGetRootElement(toSend);
+		xmlNewTextChild(cur, NULL, "monthStr", monthStr);
+		xmlNewTextChild(cur, NULL, "dayStr", dayStr);
+		xmlNewTextChild(cur, NULL, "yearStr", yearStr);
+
+		xmlDocDumpMemory(toSend,&doc,&xml_size);
+		xmlSaveFormatFile("sending.xml", toSend, 1);
+
+	} else if (strcmp(argv[2],"getslow") == 0) {
+
+		if (argc != 3){
+			printf("Syntax for get: ./myCal <calendar> getslow\n");
+			return 1;
+		}
+
+		
+		toSend = xmlNewDoc("1.0");
+		root = xmlNewNode(NULL,"getslow");
+		xmlDocSetRootElement(toSend,root);
+		cur = xmlDocGetRootElement(toSend);
+
+		xmlDocDumpMemory(toSend,&doc,&xml_size);
+		xmlSaveFormatFile("sending.xml", toSend, 1);
 	} else {
+
 		printf("%s not a supported command.\n",argv[2]);
 		return 1;
+
 	} 
 
 	//Socket set up
