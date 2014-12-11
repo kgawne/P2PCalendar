@@ -109,6 +109,12 @@ void *thread_handler(void *sockfd){
 	if(DEBUG) printf("server: command: %s\n", command);
 
 	if (strcpy(command),(xmlChar *) "add") == 0){
+		// begin add
+
+
+
+
+	// end add
 
 	} else if (strcpy(command),(xmlChar *) "get") == 0) {
 // 	GET goes here

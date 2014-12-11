@@ -139,6 +139,7 @@ int main(int argc, char *argv[]){
 		root = xmlNewNode(NULL,"add");
 		xmlDocSetRootElement(toSend,root);
 		cur = xmlDocGetRootElement(toSend);
+
 		xmlNewTextChild(cur, NULL, "monthStr", monthStr);
 		xmlNewTextChild(cur, NULL, "dayStr", dayStr);
 		xmlNewTextChild(cur, NULL, "yearStr", yearStr);
@@ -194,6 +195,7 @@ int main(int argc, char *argv[]){
 		xmlNewTextChild(cur, NULL, "yearStr", yearStr);
 		xmlNewTextChild(cur, NULL, "hourStr", hourStr);
 		xmlNewTextChild(cur, NULL, "minStr", minStr);
+		xmlNewTextChild(cur, NULL, "calendar", argv[1]);
 
 		xmlDocDumpMemory(toSend,&doc,&xml_size);
 		xmlSaveFormatFile("sending.xml", toSend, 1);
@@ -238,6 +240,7 @@ int main(int argc, char *argv[]){
 		xmlNewTextChild(cur, NULL, "minStr", minStr);
 		xmlNewTextChild(cur, NULL, "length", argv[5]);
 		xmlNewTextChild(cur, NULL, "name", argv[6]);
+		xmlNewTextChild(cur, NULL, "calendar", argv[1]);
 
 		xmlDocDumpMemory(toSend,&doc,&xml_size);
 		xmlSaveFormatFile("sending.xml", toSend, 1);
@@ -272,6 +275,7 @@ int main(int argc, char *argv[]){
 		xmlNewTextChild(cur, NULL, "monthStr", monthStr);
 		xmlNewTextChild(cur, NULL, "dayStr", dayStr);
 		xmlNewTextChild(cur, NULL, "yearStr", yearStr);
+		xmlNewTextChild(cur, NULL, "calendar", argv[1]);
 
 		xmlDocDumpMemory(toSend,&doc,&xml_size);
 		xmlSaveFormatFile("sending.xml", toSend, 1);
@@ -288,6 +292,7 @@ int main(int argc, char *argv[]){
 		root = xmlNewNode(NULL,"getslow");
 		xmlDocSetRootElement(toSend,root);
 		cur = xmlDocGetRootElement(toSend);
+		xmlNewTextChild(cur, NULL, "calendar", argv[1]);
 
 		xmlDocDumpMemory(toSend,&doc,&xml_size);
 		xmlSaveFormatFile("sending.xml", toSend, 1);
