@@ -1,7 +1,7 @@
 //Kelly D Gawne and Jack Magiera
 // Calendar client. Takes in cmd line input
 //compile: make
-//run: ./myCal <arguments>
+//run: ./mycal <arguments>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -251,7 +251,7 @@ int main(int argc, char *argv[]){
 	hints.ai_socktype = SOCK_STREAM;
 
 	//Read in server info
-	FILE *serverFile = fopen(".myCal", "r");
+	FILE *serverFile = fopen(".mycal", "r");
 	if (serverFile == NULL){
 		printf(".myCal file cannot be opened.\n");
 		exit(1);
@@ -310,7 +310,14 @@ int main(int argc, char *argv[]){
 		recv (serverfd, buffer, sizeof(xmlChar) * MAXBUFLEN, 0);
 
 		//Print response
-		if(DEBUG) printf("server: received xml----%s\n", buffer);
+		if(DEBUG) printf("client: received response----%s\n", buffer);
+		xmlDocPtr respDoc = xmlParseDoc(buffer);
+		xmlNodePtr cur = xmlDocGetRootElement(respDoc)->xmlChildrenNode->next; //printText
+		puts("here");
+		char printBuf [MAXBUFLEN];
+		//strcpy(printBuf, (char*) xmlNodeListGetString(respDoc, cur->xmlChildrenNode,1));
+		puts("there");
+		printf("%s\n", printBuf);
 		//???
 
 	}else if (strcmp(cmd, "get") || strcmp(cmd, "getslow")){

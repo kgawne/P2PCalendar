@@ -265,6 +265,7 @@ void *thread_handler(void *sockfd){
 
 		xmlNodePtr conflict = NULL;
 		conflict = calendarConflictExists(in_command, cur, saved_cal);
+		//printText = "nada";
 		if (conflict != NULL){
 			xmlAddChild(root,cur);			
 			xmlSaveFormatFile(calendarPath, saved_cal, 1);
@@ -306,16 +307,6 @@ void *thread_handler(void *sockfd){
 		send(clientfd, text, xml_sizeR, 0);
 
 		if (DEBUG) printf("server: sending response----%s\n",text);
-
-
-	} else if (xmlStrcmp(command,(xmlChar *) "update") == 0) {
-		//Find correct calendar
-
-		//Search for matching time or date
-
-		//Update node with new info
-
-		//Send response
 
 	} else if (xmlStrcmp(command,(xmlChar *) "remove") == 0) {
 
@@ -583,13 +574,9 @@ void *thread_handler(void *sockfd){
 void iterative_handler(void *sockfd){
 	//get the socket descriptor
 	int clientfd = *(int*)sockfd;
-    if (DEBUG) printf("Inside iterative_handler\n");
 
- 	//read in client packet size
-	uint32_t Nxml_size, xml_size;
-	recv( clientfd, &Nxml_size, sizeof(uint32_t), 0);
-	xml_size = ntohl(Nxml_size);
-	if(DEBUG) printf("server: received xmlSize %u\n", (short unsigned) xml_size);
+	//copy and paste threaded here.
+
 
 }
 
