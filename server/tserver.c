@@ -420,6 +420,7 @@ void *thread_handler(void *sockfd){
 		char sav_name[40]; 
 		char sav_date[40];
 		char sav_length[40];
+		char message[1000];
 		int matches;
 		getEventAttribute(in_command,cur,"startDate", (char*)req_date);
 		getEventAttribute(in_command,cur,"name", (char*)req_name);
@@ -437,6 +438,8 @@ void *thread_handler(void *sockfd){
 					xmlUnlinkNode(saved_root);
 					xmlFreeNode(saved_root);
 					xmlSaveFormatFile(calendarPath, saved_cal, 1);
+					sprintf(message, "Updated item %s\n", req_name);
+					send(clientfd, message, MAXBUFLEN, 0);
 					//SUCCESS
 					return 1;
 				}
