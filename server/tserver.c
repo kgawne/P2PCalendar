@@ -496,8 +496,8 @@ void *thread_handler(void *sockfd){
 		 NnumEvents = htons(numEvents);
 
 	 	send(clientfd, &NnumEvents, sizeof(uint16_t), 0);
-	 	uint32_t x = strlen(eventsList);
-	 	send(clientfd, &x, sizeof(uint32_t), 0);
+	 	// uint32_t x = strlen(eventsList);
+	 	send(clientfd, (uint32_t)strlen(eventsList), sizeof(uint32_t), 0);
 	 	send(clientfd, eventsList, sizeof(char) * MAXBUFLEN, 0);
 		 
 	} else if (xmlStrcmp(command,(xmlChar *) "getslow") == 0){
@@ -559,9 +559,10 @@ void *thread_handler(void *sockfd){
 				//xmlChar* doc = events[i];
 				//send(clientfd, Nxml_size, sizeof(uint32_t), 0); //send size
 				//send(clientfd, doc, xml_size, 0); //send event
-				uint32_t x = strlen(eventsList[i]);
-				send(clientfd, &x, sizeof(uint32_t), 0);
-	 			send(clientfd, eventsList[i], sizeof(char) * MAXBUFLEN, 0);
+				// send(clientfd, &NnumEvents, sizeof(uint16_t), 0);
+			 	// uint32_t x = strlen(eventsList);
+			 	send(clientfd, (uint32_t)strlen(eventsList[i]), sizeof(uint32_t), 0);
+			 	send(clientfd, eventsList[i], sizeof(char) * MAXBUFLEN, 0);
 				sleep(1);
 			}			
 		}
