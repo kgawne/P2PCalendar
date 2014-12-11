@@ -555,15 +555,6 @@ void *thread_handler(void *sockfd){
 			//Loop through relevant events
 			int i = 0;
 			for(i = 0; i < numEvents; i++){
-				//uint32_t xml_size, Nxml_size;
-				//define xml_size
-				//Nxml_size = htonl(xml_size);
-				//xmlChar* doc = events[i];
-				//send(clientfd, Nxml_size, sizeof(uint32_t), 0); //send size
-				//send(clientfd, doc, xml_size, 0); //send event
-				// send(clientfd, &NnumEvents, sizeof(uint16_t), 0);
-			 	// uint32_t x = strlen(eventsList);
-			 	send(clientfd, (uint32_t)strlen(eventsList[i]), sizeof(uint32_t), 0);
 			 	send(clientfd, eventsList[i], sizeof(char) * MAXBUFLEN, 0);
 				sleep(1);
 			}			
