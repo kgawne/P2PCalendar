@@ -82,6 +82,15 @@ int bindToPort(char* portNum){ //bind to that port. Returns sockListen_fd
 	return sockListen_fd;
 }
 
+int numMatches(char * a1, char * b1, char * a2, char * b2, char * a3, char * b3, char * a4, char * b4){
+	int matches = 0;
+	if (strcmp(a1,b1) == 0) matches++;
+	if (strcmp(a2,b2) == 0) matches++;
+	if (strcmp(a3,b3) == 0) matches++;
+	if (strcmp(a4,b4) == 0) matches++;
+	return matches;
+}
+
 time_t convertDateTime(char* inDate, char* inTime){
 	time_t rawtime = 0;
 	struct tm temp = {0,0,0, 0,0,0, 0,0,0};
@@ -161,8 +170,8 @@ time_t getEnd(xmlDocPtr doc, xmlNodePtr event){
 }
 
 int eventConflictExists(xmlDocPtr doc1, xmlNodePtr event1, xmlDocPtr doc2, xmlNodePtr event2){
-	if (getStart(doc1, event1) < getEnd(doc2, event2)) return 1; //doc1 starts during doc2
-	else if (getStart(doc2, event2) < getEnd(doc1, event1)) return 1; //doc2 starts during doc1
+	if (getStart(doc1, event1) < getEnd(doc2, event2) && getStart(doc1, event1) > getStart(doc2, event2)) return 1; //doc1 starts during doc2
+	else if (getStart(doc2, event2) < getEnd(doc1, event1) && getStart(doc2, event2) > getStart(doc1, event1)) return 1; //doc2 starts during doc1
 	else return 0;
 }
 
@@ -262,11 +271,13 @@ void *thread_handler(void *sockfd){
 		xmlNodePtr conflict = NULL;
 		conflict = calendarConflictExists(in_command, cur, saved_cal);
 		if (conflict != NULL){
-			sprintf(reply, "failure");
+			xmlAddChild(root,cur);			
+			xmlSaveFormatFile(calendarPath, saved_cal, 1);
+			sprintf(reply, "success");
 			char cName[50];
 			time_t cDateTime = getStart(saved_cal, conflict);
 			getEventAttribute(saved_cal, conflict, "name", cName);
-			sprintf(printText, "There value could not be added due to a conflict with %s on %s\n", cName, ctime(&cDateTime));
+			sprintf(printText, "The value has a conflict with %s on %s\n", cName, ctime(&cDateTime));
 		}else{
 			xmlAddChild(root,cur);			
 			xmlSaveFormatFile(calendarPath, saved_cal, 1);
@@ -342,7 +353,6 @@ void *thread_handler(void *sockfd){
 			xmlDocSetRootElement(saved_cal,saved_root);
 
 		}
-
 		saved_root = xmlDocGetRootElement(saved_cal)->xmlChildrenNode;
 		cur = xmlDocGetRootElement(in_command)->xmlChildrenNode;
 		time_t req_time = getStart(in_command, cur);
@@ -360,6 +370,69 @@ void *thread_handler(void *sockfd){
 		 	saved_root=saved_root->next;
 		}
 		//FAIL
+
+	} else if (xmlStrcmp(command,(xmlChar *) "update") == 0) {
+		if (stat("calendars", &st) == -1){
+			mkdir("calendars", 0777);
+			printf("Made new calendar folder.\n");
+			// TODO: Just exit
+		}
+		strcpy(calendarPath,(char *)"calendars/");
+		cur = xmlDocGetRootElement(in_command)->xmlChildrenNode->xmlChildrenNode;
+		
+		while (cur != NULL){
+			if (xmlStrcmp(cur->name, (xmlChar *)"calendar") == 0){
+
+				strcpy(calendarName, (char*) xmlNodeListGetString(in_command, cur->xmlChildrenNode,1));
+				strcat(calendarPath, calendarName);
+			} 
+			cur = cur->next;
+		}
+		strcat(calendarPath,".xml");
+		if (stat (calendarPath, &st) == 0){
+			saved_cal = xmlParseFile(calendarPath);
+		} else {
+			saved_cal = xmlNewDoc( (xmlChar*) "1.0");
+			saved_root = xmlNewNode(NULL,  (xmlChar*) calendarName);
+			xmlDocSetRootElement(saved_cal,saved_root);
+		}
+		saved_root = xmlDocGetRootElement(saved_cal)->xmlChildrenNode;
+		root = xmlDocGetRootElement(saved_cal);
+		cur = xmlDocGetRootElement(in_command)->xmlChildrenNode;
+		char * req_time[40];
+		char * req_name[40]; 
+		char * req_date[40];
+		char * req_length[40];
+		char * sav_time[40];
+		char * sav_name[40]; 
+		char * sav_date[40];
+		char * sav_length[40];
+		int matches;
+		getEventAttribute(in_command,cur,"startDate",req_date);
+		getEventAttribute(in_command,cur,"name",req_name);
+		getEventAttribute(in_command,cur,"startTime",req_time);
+		getEventAttribute(in_command,cur,"length",req_length);
+		while (saved_root != NULL ){
+			if (xmlStrcmp(saved_root->name, (xmlChar*) "event")==0){
+				getEventAttribute(saved_cal,saved_root,"startDate",sav_date);
+				getEventAttribute(saved_cal,saved_root,"name",sav_name);
+				getEventAttribute(saved_cal,saved_root,"startTime",sav_time);
+				getEventAttribute(saved_cal,saved_root,"length",sav_length);
+				matches = numMatches(req_time,sav_time,req_name,sav_name,req_date,sav_date,req_length,sav_length);
+				if (matches >= 2){
+					xmlAddChild(root,cur);
+					xmlUnlinkNode(saved_root);
+					xmlFreeNode(saved_root);
+					xmlSaveFormatFile(calendarPath, saved_cal, 1);
+					//SUCCESS
+					return 1;
+				}
+				saved_root=saved_root->next;
+			}
+		 	saved_root=saved_root->next;
+		}
+		//FAIL
+
 
 	} else if (xmlStrcmp(command,(xmlChar *) "get") == 0) {
 			// 	GET goes here
