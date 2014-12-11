@@ -37,9 +37,42 @@ time_t convertDateTime(char* inDate, char* inTime){
 	char buffer[25];
 	strftime(buffer, 25, "%Y:%m:%d%H:%M:%S", &temp);
 	if(DEBUG) printf("CONVERTED TIME: %s\n", buffer);
-
 	rawtime = mktime(&temp);
 	return rawtime;
+}
+
+char* getAttribute(xmlDocPtr doc, char* attribute){
+	//for jack to implement
+	//get root
+
+	//traverse tree until attribute found
+
+	//return attribute value
+}
+
+time_t getStart(xmlDocPtr doc){
+	char* inDate = getAttribute(doc, "startDate");
+	char* inTime = getAttribute(doc, "startTime");
+
+	return convertDateTime (inDate, inTime);
+}
+
+time_t getEnd(xmlDocPtr doc){
+	char* inDate = getAttribute(doc, "startDate");
+	char* inTime = getAttribute(doc, "startTime");
+	char* length = getAttribute(doc, "length");
+
+	time_t startTime = convertDateTime (inDate, inTime);
+	int duration_sec = atof(length) * 60 * 60;
+	time_t rawEnd = startTime + duration_sec;
+
+	return rawEnd;
+}
+
+int conflictExists(xmlDocPtr doc1, xmlDocPtr doc2){
+	if (getStart(doc1) < getEnd(doc2)) return 1; //doc1 starts during doc2
+	else if (getStart(doc2) < getEnd(doc1)) return 1; //doc1 starts during doc2
+	else return 0;
 }
 
 int main(int argc, char *argv[]){
@@ -71,6 +104,8 @@ int main(int argc, char *argv[]){
 		char* inTime = argv[4];
 
 		time_t rawStart = convertDateTime( inDate, inTime);
+		if(DEBUG) printf("CONVERTED TIME returned: %d\n", rawStart);
+		printf("Current time = %s", ctime(&rawStart));
 		int duration_sec = atof(argv[5]) * 60 * 60;
 		time_t rawEnd = rawStart + duration_sec;
 
@@ -83,13 +118,8 @@ int main(int argc, char *argv[]){
 		root = xmlNewNode(NULL,"message");
 		xmlDocSetRootElement(toSend,root);
 		cur = xmlNewTextChild(root, NULL, "event", NULL);
-
-		char startStr[25], endStr[25];
-		sprintf(startStr, "%d", &rawStart);
-		sprintf(endStr, "%d", &rawEnd);
-
-		xmlNewTextChild(cur, NULL, "rawStart", startStr);
-		xmlNewTextChild(cur, NULL, "rawEnd", endStr);
+		xmlNewTextChild(cur, NULL, "startDate", argv[3]);
+		xmlNewTextChild(cur, NULL, "startTime", argv[4]);
 		xmlNewTextChild(cur, NULL, "calendar", argv[1]);
 		xmlNewTextChild(cur, NULL, "length", argv[5]);
 		xmlNewTextChild(cur, NULL, "name", argv[6]);
@@ -109,20 +139,13 @@ int main(int argc, char *argv[]){
 			return 1;
 		}
 
-		char* inDate = argv[3];
-		char* inTime = argv[4];
-
-		time_t rawStart = convertDateTime( inDate, inTime);
-
-		char startStr[25];
-		sprintf(startStr, "%d", &rawStart);
-
 		toSend = xmlNewDoc("1.0");
 		root = xmlNewNode(NULL,"event");
 		xmlDocSetRootElement(toSend,root);
 
 		cur = xmlNewTextChild(root, NULL, "event", NULL);
-		xmlNewTextChild(cur, NULL, "rawStart", startStr);
+		xmlNewTextChild(cur, NULL, "startDate", argv[3]);
+		xmlNewTextChild(cur, NULL, "startTime", argv[4]);
 		xmlNewTextChild(cur, NULL, "calendar", argv[1]);
 		xmlAddSibling(cur,xmlNewDocNode(toSend,NULL,"command","remove"));
 
@@ -160,8 +183,8 @@ int main(int argc, char *argv[]){
 		root = xmlNewNode(NULL,"event");
 		xmlDocSetRootElement(toSend,root);
 		cur = xmlNewTextChild(root, NULL, "event", NULL);
-		xmlNewTextChild(cur, NULL, "rawStart", startStr);
-		xmlNewTextChild(cur, NULL, "rawEnd", endStr);
+		xmlNewTextChild(cur, NULL, "startDate", argv[3]);
+		xmlNewTextChild(cur, NULL, "startTime", argv[4]);
 		xmlNewTextChild(cur, NULL, "length", argv[5]);
 		xmlNewTextChild(cur, NULL, "name", argv[6]);
 		xmlNewTextChild(cur, NULL, "calendar", argv[1]);
@@ -193,7 +216,7 @@ int main(int argc, char *argv[]){
 		root = xmlNewNode(NULL,"event");
 		xmlDocSetRootElement(toSend,root);
 		cur = xmlNewTextChild(root, NULL, "event", NULL);
-		xmlNewTextChild(cur, NULL, "rawStart", startStr);
+		xmlNewTextChild(cur, NULL, "startDate", argv[3]);
 		xmlNewTextChild(cur, NULL, "calendar", argv[1]);
 		xmlAddSibling(cur,xmlNewDocNode(toSend,NULL,"command","get"));
 
