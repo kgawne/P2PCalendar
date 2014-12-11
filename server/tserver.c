@@ -102,7 +102,7 @@ void *thread_handler(void *sockfd){
 		if(xml_size - numbytesSoFar < MAXBUFLEN){
 			bufSize = xml_size - numbytesSoFar; //amount left to be read
 		}
-		recv( clientfd, &buf, )
+		//recv( clientfd, &buf, )
 
 	}
 
