@@ -36,7 +36,7 @@ time_t convertDateTime(char* inDate, char* inTime){
 
 	char buffer[25];
 	strftime(buffer, 25, "%Y:%m:%d%H:%M:%S", &temp);
-	printf("CONVERTED TIME: %s\n", buffer);
+	if(DEBUG) printf("CONVERTED TIME: %s\n", buffer);
 
 	rawtime = mktime(&temp);
 	return rawtime;
@@ -73,7 +73,6 @@ int main(int argc, char *argv[]){
 		time_t rawStart = convertDateTime( inDate, inTime);
 		int duration_sec = atof(argv[5]) * 60 * 60;
 		time_t rawEnd = rawStart + duration_sec;
-		puts("after conversion");
 
 		if (rawEnd < rawStart){
 			printf("Invalid date entered. End of event cannot preceed start.\n");
@@ -88,7 +87,6 @@ int main(int argc, char *argv[]){
 		char startStr[25], endStr[25];
 		sprintf(startStr, "%d", &rawStart);
 		sprintf(endStr, "%d", &rawEnd);
-		puts("after sprintf");
 
 		xmlNewTextChild(cur, NULL, "rawStart", startStr);
 		xmlNewTextChild(cur, NULL, "rawEnd", endStr);
@@ -218,7 +216,6 @@ int main(int argc, char *argv[]){
 
 	} 
 
-		puts("before socket set up");
 
 //--------------------------------------------------------------------------
 
@@ -236,25 +233,15 @@ int main(int argc, char *argv[]){
 		exit(1);
 	}
 
-		puts("after opening file");
-
 	char line[128];
-	char *hostname, *portnum;
-		puts("1");
-	fscanf(serverFile, "%s\n", hostname);
-		puts("2");
-	fgets( line, sizeof line, serverFile);
-		puts("3");
-	portnum = line;
-		puts("4");
+	char hostname[25], portnum[25];
+	fgets( line, 128, serverFile);
+	sscanf(line, "%s %s", hostname, portnum);
 
 	fclose(serverFile);
-		puts("before printing");
 	if(DEBUG) printf("Connecting to '%s' on port '%s'\n", hostname, portnum);	
-		puts("after printing");
 
 	getaddrinfo(hostname, portnum, &hints, &res); 
-		puts("after getaddrinfo");
 
 	if ((serverfd = socket(res->ai_family,res->ai_socktype,res->ai_protocol)) == -1){
 		printf("Socket Failure\n");
