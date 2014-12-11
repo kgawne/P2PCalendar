@@ -1,7 +1,7 @@
 //Kelly Gawne and Jack Magiera
 //Calendar server
 //Compile: make
-//Usage: ./myCald
+//Usage: ./myCald <serverType> <portNum>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -91,6 +91,15 @@ void *thread_handler(void *sockfd){
 	return 0;
 }
 
+void iterative_handler(void *sockfd){
+	//get the socket descriptor
+	int clientfd = *(int*)sockfd;
+    if (DEBUG) printf("Inside iterative_handler\n");
+
+    //Operate
+
+}
+
 int main(int argc, char* argv[]){ //remove arg input...?
 
 	//Parse cmd line for server options
@@ -129,17 +138,21 @@ int main(int argc, char* argv[]){ //remove arg input...?
 		int clientfd;
 		struct sockaddr_in client_addr;
 		int clientAddrLen = sizeof(client_addr);
-		pthread_t thread_id;
 		
 		//accept
 		clientfd = accept(sockListen_fd, (struct sockaddr*)&client_addr, &clientAddrLen);
 		if (DEBUG)
 			printf("SERVER:  %s:%d connected\n", inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port));
 
-		//create new thread
-		if( pthread_create( &thread_id , NULL, thread_handler, (void*) &clientfd) < 0){
-			perror("couldn't create thread");
-			return 1;
+		//Handle connection
+		if (threaded){
+			pthread_t thread_id;
+			if( pthread_create( &thread_id , NULL, thread_handler, (void*) &clientfd) < 0){
+				perror("couldn't create thread");
+				return 1;
+			}			
+		}else{
+			iterative_handler((void*) &clientfd);
 		}
 
 	}
