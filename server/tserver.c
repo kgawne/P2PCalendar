@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
+#include <sys/stat.h>
 #include <dirent.h>
 #include <sys/socket.h>
 #include <netdb.h>
@@ -84,11 +85,21 @@ int bindToPort(char* portNum){ //bind to that port. Returns sockListen_fd
 void *thread_handler(void *sockfd){
  	//Get the socket descriptor
     int clientfd = *(int*)sockfd;
+<<<<<<< HEAD
 
     xmlChar *buffer = malloc(sizeof(xmlChar) * MAXBUFLEN) ;
     xmlDocPtr in_command;
     xmlNodePtr cur;
     xmlChar * command;
+=======
+    xmlChar *buffer = malloc(sizeof(xmlChar) * 1024) ;
+    xmlDocPtr in_command;
+    xmlNodePtr cur;
+    xmlChar * command;
+
+
+    struct stat st = {0};
+>>>>>>> e6c9d12bef74650d870ff76affb1e0cfe4b47d26
 
     //Fully connected! Yay!
     if (DEBUG) printf("Inside thread\n");
@@ -109,18 +120,18 @@ void *thread_handler(void *sockfd){
 	strcpy(command,cur->name);
 	if(DEBUG) printf("server: command: %s\n", command);
 
-	if (strcpy(command),(xmlChar *) "add") == 0){
+	if (xmlStrcmp(command,(xmlChar *) "add") == 0){
 		// begin add
-
-
-
-
+		if (stat("/calendars", &st) == -1){
+			mkdir("/calendars", 0777);
+			printf("Made new calendar folder.\n");
+		}
 	// end add
 
-	} else if (strcpy(command),(xmlChar *) "get") == 0) {
+	} else if (xmlStrcmp(command,(xmlChar *) "get") == 0) {
 // 	GET goes here
 
-	} else if (strcpy(command),(xmlChar *) "getslow") == 0){
+	} else if (xmlStrcmp(command,(xmlChar *) "getslow") == 0){
 	// GETSLOW goes here
 		//find relevant events and store in array
 		//xmlChar** events;
