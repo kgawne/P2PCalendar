@@ -132,13 +132,14 @@ int main(int argc, char *argv[]){
 		endhrStr[2] = '\0';
 		endminStr[2] = '\0';
 
-		printf("%s/%s/%s %s:%s\n", monthStr, dayStr, yearStr, hourStr, minStr );
-		printf("%d/%d/%d %d:%d\n", end_mon, end_day, end_yr, end_hr, end_min );
+		// printf("%s/%s/%s %s:%s\n", monthStr, dayStr, yearStr, hourStr, minStr );
+		// printf("%d/%d/%d %d:%d\n", end_mon, end_day, end_yr, end_hr, end_min );
 
 		toSend = xmlNewDoc("1.0");
 		root = xmlNewNode(NULL,"add");
 		xmlDocSetRootElement(toSend,root);
 		cur = xmlDocGetRootElement(toSend);
+
 		xmlNewTextChild(cur, NULL, "monthStr", monthStr);
 		xmlNewTextChild(cur, NULL, "dayStr", dayStr);
 		xmlNewTextChild(cur, NULL, "yearStr", yearStr);
@@ -194,6 +195,7 @@ int main(int argc, char *argv[]){
 		xmlNewTextChild(cur, NULL, "yearStr", yearStr);
 		xmlNewTextChild(cur, NULL, "hourStr", hourStr);
 		xmlNewTextChild(cur, NULL, "minStr", minStr);
+		xmlNewTextChild(cur, NULL, "calendar", argv[1]);
 
 		xmlDocDumpMemory(toSend,&doc,&xml_size);
 		xmlSaveFormatFile("sending.xml", toSend, 1);
@@ -238,6 +240,7 @@ int main(int argc, char *argv[]){
 		xmlNewTextChild(cur, NULL, "minStr", minStr);
 		xmlNewTextChild(cur, NULL, "length", argv[5]);
 		xmlNewTextChild(cur, NULL, "name", argv[6]);
+		xmlNewTextChild(cur, NULL, "calendar", argv[1]);
 
 		xmlDocDumpMemory(toSend,&doc,&xml_size);
 		xmlSaveFormatFile("sending.xml", toSend, 1);
@@ -272,6 +275,7 @@ int main(int argc, char *argv[]){
 		xmlNewTextChild(cur, NULL, "monthStr", monthStr);
 		xmlNewTextChild(cur, NULL, "dayStr", dayStr);
 		xmlNewTextChild(cur, NULL, "yearStr", yearStr);
+		xmlNewTextChild(cur, NULL, "calendar", argv[1]);
 
 		xmlDocDumpMemory(toSend,&doc,&xml_size);
 		xmlSaveFormatFile("sending.xml", toSend, 1);
@@ -288,6 +292,7 @@ int main(int argc, char *argv[]){
 		root = xmlNewNode(NULL,"getslow");
 		xmlDocSetRootElement(toSend,root);
 		cur = xmlDocGetRootElement(toSend);
+		xmlNewTextChild(cur, NULL, "calendar", argv[1]);
 
 		xmlDocDumpMemory(toSend,&doc,&xml_size);
 		xmlSaveFormatFile("sending.xml", toSend, 1);
@@ -305,7 +310,7 @@ int main(int argc, char *argv[]){
 	hints.ai_family = AF_UNSPEC;
 	hints.ai_socktype = SOCK_STREAM;
 
-	getaddrinfo("student02.cse.nd.edu","9770", &hints, &res); 
+	getaddrinfo("student02.cse.nd.edu","9771", &hints, &res); 
 	//NOTE: hard-coded to student00 in order to match argument constraints
 
 	if ((socket_fd = socket(res->ai_family,res->ai_socktype,res->ai_protocol)) == -1){
@@ -330,7 +335,8 @@ int main(int argc, char *argv[]){
 
 	//Send data to server
 	send(socket_fd, doc, xml_size, 0);
-	if (DEBUG) printf("client: sending xml----%s\n", (char*) doc);
+
+	if (DEBUG) printf("client: sending xml----%s\n",doc);
 
 	//Handle server response...
 

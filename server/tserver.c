@@ -84,7 +84,14 @@ int bindToPort(char* portNum){ //bind to that port. Returns sockListen_fd
 void *thread_handler(void *sockfd){
  	//Get the socket descriptor
     int clientfd = *(int*)sockfd;
+<<<<<<< HEAD
     char buffer[MAXBUFLEN];
+=======
+    xmlChar *buffer = malloc(sizeof(xmlChar) * 1024) ;
+    xmlDocPtr in_command;
+    xmlNodePtr cur;
+    xmlChar * command;
+>>>>>>> a43566a569e5a4b6a7bcf09d524efef796459ae2
 
     //Fully connected! Yay!
     if (DEBUG) printf("Inside thread\n");
@@ -97,10 +104,29 @@ void *thread_handler(void *sockfd){
 
 	//Read in client packet data
 	bzero(buffer, MAXBUFLEN);
-	recv (clientfd, &buffer, xml_size, 0);
+	recv (clientfd, buffer, sizeof(xmlChar) * 1024, 0);
 	if(DEBUG) printf("server: received xml----%s\n", buffer);
 
+	in_command = xmlParseDoc(buffer);
+	cur = xmlDocGetRootElement(in_command);
+	strcpy(command,cur->name);
+	if(DEBUG) printf("server: command: %s\n", command);
 
+	if (strcpy(command),(xmlChar *) "add") == 0){
+		// begin add
+
+
+
+
+	// end add
+
+	} else if (strcpy(command),(xmlChar *) "get") == 0) {
+// 	GET goes here
+
+	} else if (strcpy(command),(xmlChar *) "getslow") == 0){
+	// GETSLOW goes here
+
+	}
 
 	return 0;
 }
