@@ -112,17 +112,18 @@ void *thread_handler(void *sockfd){
 	strcpy(command,cur->name);
 	if(DEBUG) printf("server: command: %s\n", command);
 
-	if (strcpy(command,(xmlChar *) "add") == 0){
+	if (xmlStrcmp(command,(xmlChar *) "add") == 0){
 		// begin add
-		if (stat("calendars", &st) == -1){
-			mkdir("calendars", 0777);
+		if (stat("/calendars", &st) == -1){
+			mkdir("/calendars", 0777);
+			printf("Made new calendar folder.\n");
 		}
 	// end add
 
-	} else if (strcpy(command,(xmlChar *) "get") == 0) {
+	} else if (xmlStrcmp(command,(xmlChar *) "get") == 0) {
 // 	GET goes here
 
-	} else if (strcpy(command,(xmlChar *) "getslow") == 0){
+	} else if (xmlStrcmp(command,(xmlChar *) "getslow") == 0){
 	// GETSLOW goes here
 
 	}
