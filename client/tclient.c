@@ -318,7 +318,7 @@ int main(int argc, char *argv[]){
 		uint16_t numEvents, NnumEvents;
 		recv( serverfd, &NnumEvents, sizeof(uint16_t), 0);
 		numEvents = ntohs(NnumEvents);
-		if(DEBUG) printf("server: received num: %d\n", numEvents);
+		// if(DEBUG) printf("server: received num: %d\n", numEvents);
 		if( numEvents == 0){
 			printf("There are no applicable events\n");
 		}else{
