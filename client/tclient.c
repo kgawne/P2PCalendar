@@ -24,6 +24,8 @@ int main(int argc, char *argv[]){
 
 	xmlDocPtr toSend;
 	xmlNodePtr cur, root;
+	int xml_size;
+	xmlChar *doc;
 
 	//Open connection to server NOTE: hard-coded to student02 in order to 
 	if (argc < 3 || argc > 7) {
@@ -151,6 +153,8 @@ int main(int argc, char *argv[]){
 		xmlNewTextChild(cur, NULL, "length", argv[5]);
 		xmlNewTextChild(cur, NULL, "name", argv[6]);
 
+		
+		xmlDocDumpMemory(toSend,&doc,&xml_size);
 		xmlSaveFormatFile("sending.xml", toSend, 1);
 
 	} else {
@@ -183,7 +187,7 @@ int main(int argc, char *argv[]){
 	}
 
 	//Send data structure to server
-	//send(socket_fd, &(xml_to_send[i]), sizeof(struct sensor_data), 0);
+	send(socket_fd, &(doc), xml_size, 0);
 	//if (DEBUG) printf("Sent %f\n",xml_to_send[i].reading_val);
 
 	//Handle server response...
