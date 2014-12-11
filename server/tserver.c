@@ -170,6 +170,13 @@ time_t getEnd(xmlDocPtr doc, xmlNodePtr event){
 }
 
 int eventConflictExists(xmlDocPtr doc1, xmlNodePtr event1, xmlDocPtr doc2, xmlNodePtr event2){
+	time_t start1, end1, start2, end2;
+	start1 = getStart(doc1, event1);
+	end1 = getEnd(doc1, event1);
+	start2 = getStart(doc2,event2);
+	end2 = getEnd(doc2, event2);
+	printf("HERE\n\n\n\1begin:%d, end:%d\n2begin:%d, end:%d", start1, end1, start2, end2);
+
 	if (getStart(doc1, event1) < getEnd(doc2, event2) && getStart(doc1, event1) > getStart(doc2, event2)) return 1; //doc1 starts during doc2
 	else if (getStart(doc2, event2) < getEnd(doc1, event1) && getStart(doc2, event2) > getStart(doc1, event1)) return 1; //doc2 starts during doc1
 	else return 0;
