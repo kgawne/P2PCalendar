@@ -84,14 +84,11 @@ int bindToPort(char* portNum){ //bind to that port. Returns sockListen_fd
 void *thread_handler(void *sockfd){
  	//Get the socket descriptor
     int clientfd = *(int*)sockfd;
-<<<<<<< HEAD
-    char buffer[MAXBUFLEN];
-=======
-    xmlChar *buffer = malloc(sizeof(xmlChar) * 1024) ;
+
+    xmlChar *buffer = malloc(sizeof(xmlChar) * MAXBUFLEN) ;
     xmlDocPtr in_command;
     xmlNodePtr cur;
     xmlChar * command;
->>>>>>> a43566a569e5a4b6a7bcf09d524efef796459ae2
 
     //Fully connected! Yay!
     if (DEBUG) printf("Inside thread\n");
@@ -104,7 +101,7 @@ void *thread_handler(void *sockfd){
 
 	//Read in client packet data
 	bzero(buffer, MAXBUFLEN);
-	recv (clientfd, buffer, sizeof(xmlChar) * 1024, 0);
+	recv (clientfd, buffer, sizeof(xmlChar) * MAXBUFLEN, 0);
 	if(DEBUG) printf("server: received xml----%s\n", buffer);
 
 	in_command = xmlParseDoc(buffer);
@@ -125,6 +122,27 @@ void *thread_handler(void *sockfd){
 
 	} else if (strcpy(command),(xmlChar *) "getslow") == 0){
 	// GETSLOW goes here
+		//find relevant events and store in array
+		//xmlChar** events;
+
+		//Send number of relevent events
+		uint16_t NnumEvents, numEvents = 0;
+		NnumEvents = htons(numEvents);
+		//send(clientfd, NnumEvents, sizeof(uint16_t), 0);
+
+		if (numEvents != 0){
+			//Loop through relevant events
+			int i = 0;
+			for(i = 0; i < numEvents; i++){
+				//uint32_t xml_size, Nxml_size;
+				//define xml_size
+				//Nxml_size = htonl(xml_size);
+				//xmlChar* doc = events[i];
+				//send(clientfd, Nxml_size, sizeof(uint32_t), 0); //send size
+				//send(clientfd, doc, xml_size, 0); //send event
+				sleep(1);
+			}			
+		}
 
 	}
 

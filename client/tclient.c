@@ -19,6 +19,7 @@
 #include <libxml/xmlmemory.h>
 
 #define DEBUG 1
+#define MAXBUFLEN 2048
 
 int main(int argc, char *argv[]){
 
@@ -33,7 +34,9 @@ int main(int argc, char *argv[]){
 		return 1;
 	}
 
-	if (strcmp(argv[2],"add") == 0){
+	char* cmd = argv[2];
+
+	if (strcmp(cmd,"add") == 0){
 		if (argc != 7){
 			printf("Syntax for add: ./myCal <calendar> add <mmddyy> <hhmm> <length> <name>\n");
 			return 1;
@@ -157,7 +160,7 @@ int main(int argc, char *argv[]){
 		xmlDocDumpMemory(toSend,&doc,&xml_size);
 		xmlSaveFormatFile("sending.xml", toSend, 1);
 
-	} else if (strcmp(argv[2],"remove") == 0){
+	} else if (strcmp(cmd,"remove") == 0){
 
 		if (argc != 5){
 			printf("Syntax for remove: ./myCal <calendar> remove <mmddyy> <hhmm>\n");
@@ -200,7 +203,7 @@ int main(int argc, char *argv[]){
 		xmlDocDumpMemory(toSend,&doc,&xml_size);
 		xmlSaveFormatFile("sending.xml", toSend, 1);
 
-	} else if (strcmp(argv[2],"update") == 0) {
+	} else if (strcmp(cmd,"update") == 0) {
 
 		if (argc != 7){
 			printf("Syntax for update: ./myCal <calendar> update <mmddyy> <hhmm> <length> <name>\n");
@@ -245,7 +248,7 @@ int main(int argc, char *argv[]){
 		xmlDocDumpMemory(toSend,&doc,&xml_size);
 		xmlSaveFormatFile("sending.xml", toSend, 1);
 
-	} else if (strcmp(argv[2],"get") == 0) {
+	} else if (strcmp(cmd,"get") == 0) {
 
 		if (argc != 4){
 			printf("Syntax for get: ./myCal <calendar> get <mmddyy>\n");
@@ -280,7 +283,7 @@ int main(int argc, char *argv[]){
 		xmlDocDumpMemory(toSend,&doc,&xml_size);
 		xmlSaveFormatFile("sending.xml", toSend, 1);
 
-	} else if (strcmp(argv[2],"getslow") == 0) {
+	} else if (strcmp(cmd,"getslow") == 0) {
 
 		if (argc != 3){
 			printf("Syntax for get: ./myCal <calendar> getslow\n");
@@ -298,13 +301,15 @@ int main(int argc, char *argv[]){
 		xmlSaveFormatFile("sending.xml", toSend, 1);
 	} else {
 
-		printf("%s not a supported command.\n",argv[2]);
+		printf("%s not a supported command.\n",cmd);
 		return 1;
 
 	} 
 
+//--------------------------------------------------------------------------
+
 	//Socket set up
-	int socket_fd;
+	int serverfd;
 	struct addrinfo hints, *res;
 	memset(&hints,0,sizeof(hints));
 	hints.ai_family = AF_UNSPEC;
@@ -313,7 +318,7 @@ int main(int argc, char *argv[]){
 	getaddrinfo("student02.cse.nd.edu","9771", &hints, &res); 
 	//NOTE: hard-coded to student00 in order to match argument constraints
 
-	if ((socket_fd = socket(res->ai_family,res->ai_socktype,res->ai_protocol)) == -1){
+	if ((serverfd = socket(res->ai_family,res->ai_socktype,res->ai_protocol)) == -1){
 		printf("Socket Failure\n");
 		exit(1);
 	}
@@ -322,7 +327,7 @@ int main(int argc, char *argv[]){
 	char local_host[1024];
 	gethostname(local_host, 1023);
 
-	if (connect(socket_fd, res->ai_addr, res->ai_addrlen) < 0){
+	if (connect(serverfd, res->ai_addr, res->ai_addrlen) < 0){
 		printf("connection failure\n");
 		exit(1);
 	}
@@ -330,15 +335,63 @@ int main(int argc, char *argv[]){
 
 	//Send data size to server
 	uint32_t Nxml_size = htonl(xml_size);
-	send(socket_fd, &Nxml_size, sizeof(Nxml_size), 0);
+	send(serverfd, &Nxml_size, sizeof(Nxml_size), 0);
 	if(DEBUG) printf("client: sent xmlSize--%d\n", xml_size);
 
 	//Send data to server
-	send(socket_fd, doc, xml_size, 0);
+	send(serverfd, doc, xml_size, 0);
 
 	if (DEBUG) printf("client: sending xml----%s\n",doc);
 
-	//Handle server response...
+//-----------------------------------------------------------------------------
 
+	//Handle server response...
+	xmlChar *buffer = malloc(sizeof(xmlChar) * MAXBUFLEN);
+
+
+	if ( !strcmp( cmd, "add") || !strcmp(cmd, "remove") || !strcmp(cmd, "update")){
+		//Get response size
+		uint32_t Nxml_size, xml_size;
+		recv( serverfd, &Nxml_size, sizeof(uint32_t), 0);
+		xml_size = ntohl(Nxml_size);
+
+		//Get response data
+		bzero(buffer, MAXBUFLEN);
+		recv (serverfd, buffer, sizeof(xmlChar) * MAXBUFLEN, 0);
+
+		//Print response
+		if(DEBUG) printf("server: received xml----%s\n", buffer);
+		//???
+
+	}else if (strcmp(cmd, "get") || strcmp(cmd, "getslow")){
+		//Get number of events
+		uint16_t numEvents, NnumEvents;
+		recv( serverfd, &NnumEvents, sizeof(uint16_t), 0);
+		numEvents = ntohl(NnumEvents);
+
+		if( numEvents == 0){
+			printf("There are no applicable events\n");
+		}else{
+			int i = 0;
+			for ( i = 0; i < numEvents; i++){
+
+				//Get event size
+				uint32_t Nxml_size, xml_size;
+				recv( serverfd, &Nxml_size, sizeof(uint32_t), 0);
+				xml_size = ntohl(Nxml_size);
+
+				//Get event data
+				bzero(buffer, MAXBUFLEN);
+				recv (serverfd, buffer, sizeof(xmlChar) * MAXBUFLEN, 0);
+
+				//Print event
+				if(DEBUG) printf("server: received xml----%s\n", buffer);
+				//???
+
+			}			
+		}
+	}
+
+	free(buffer);
 	return 0;
 }
