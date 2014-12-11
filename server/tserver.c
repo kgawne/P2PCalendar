@@ -84,7 +84,7 @@ int bindToPort(char* portNum){ //bind to that port. Returns sockListen_fd
 void *thread_handler(void *sockfd){
  	//Get the socket descriptor
     int clientfd = *(int*)sockfd;
-    xmlChar buffer[MAXBUFLEN];
+    char buffer[MAXBUFLEN];
 
     //Fully connected! Yay!
     if (DEBUG) printf("Inside thread\n");
