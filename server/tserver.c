@@ -20,7 +20,7 @@
 #include <libxml/parser.h>
 #include <libxml/xmlmemory.h>
 
-#define DEBUG 1
+#define DEBUG 0
 #define MAXBUFLEN 1024 //max nmber of bytes at once
 
 int threaded = 0; //flag for threaded/iterative
