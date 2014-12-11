@@ -82,16 +82,16 @@ int bindToPort(char* portNum){ //bind to that port. Returns sockListen_fd
 	return sockListen_fd;
 }
 
-int conflictExists( xmlDocPtr doc1, xmlDocPtr doc2){
-	if ( getTime(doc1, 0) < getTime(doc2, 1)) return 1; //if first starts before second ends
-	else if ( getTime(doc2, 0) < getTime(doc1, 1)) return 1; //if second starts before first ends
-}
+// int conflictExists( xmlDocPtr doc1, xmlDocPtr doc2){
+// 	if ( getTime(doc1, 0) < getTime(doc2, 1)) return 1; //if first starts before second ends
+// 	else if ( getTime(doc2, 0) < getTime(doc1, 1)) return 1; //if second starts before first ends
+// }
 
 void *thread_handler(void *sockfd){
  	//Get the socket descriptor
     int clientfd = *(int*)sockfd;
 
-<<<<<<< .mine
+
     xmlChar *buffer = malloc(sizeof(xmlChar) * MAXBUFLEN) ;
 
     xmlDocPtr in_command, saved_cal;
@@ -105,14 +105,6 @@ void *thread_handler(void *sockfd){
     char tempEvents[1000];
     char calendarName[40];
     int debug_size;
-=======
-    xmlChar *buffer = malloc(sizeof(xmlChar) * 1024) ;
-    xmlDocPtr in_command;
-    xmlNodePtr cur;
-    xmlChar * command;
-    FILE * calendar;
-    char * calendarPath;
->>>>>>> .r36
 
     struct stat st = {0};
 
@@ -173,6 +165,10 @@ void *thread_handler(void *sockfd){
 		}
 		
 		xmlSaveFormatFile(calendarPath, saved_cal, 1);
+
+		// TODO: RESPONSE
+	} else if (xmlStrcmp(command,(xmlChar *) "remove") == 0) {
+
 	} else if (xmlStrcmp(command,(xmlChar *) "get") == 0) {
 // 	GET goes here
 
