@@ -317,8 +317,8 @@ int main(int argc, char *argv[]){
 		//Get number of events
 		uint16_t numEvents, NnumEvents;
 		recv( serverfd, &NnumEvents, sizeof(uint16_t), 0);
-		numEvents = ntohl(NnumEvents);
-
+		numEvents = ntohs(NnumEvents);
+		if(DEBUG) printf("server: received num: %d\n", numEvents);
 		if( numEvents == 0){
 			printf("There are no applicable events\n");
 		}else{
@@ -332,10 +332,10 @@ int main(int argc, char *argv[]){
 
 				//Get event data
 				bzero(buffer, MAXBUFLEN);
-				recv (serverfd, buffer, sizeof(xmlChar) * MAXBUFLEN, 0);
+				recv (serverfd, buffer, sizeof(char) * MAXBUFLEN, 0);
 
 				//Print event
-				if(DEBUG) printf("server: received xml----%s\n", buffer);
+				if(DEBUG) printf("%s\n", i, buffer);	
 				//???
 
 			}			

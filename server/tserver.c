@@ -122,6 +122,20 @@ void getEventAttribute(xmlDocPtr doc, xmlNodePtr event, char* attribute, char* v
 	strcpy(value, buffer);
 }
 
+void printEvent(xmlDocPtr doc, xmlNodePtr event, char * events){
+    char buffer[40];
+    char name[40];
+    char date[40];
+    char startTime[40];
+    char length[40];
+    getEventAttribute(doc,event,"name",name);
+    getEventAttribute(doc,event,"startDate",date);
+    getEventAttribute(doc,event,"startTime",startTime);
+    getEventAttribute(doc,event,"length",length);
+    sprintf(buffer, "%s %s %s %s hours\n", date, startTime, name, length);
+    strcat(events, buffer);
+}
+
 time_t getStart(xmlDocPtr doc, xmlNodePtr event){
 	char inDate[40];
 	char inTime[40];
@@ -365,21 +379,71 @@ void *thread_handler(void *sockfd){
 		}
 		saved_root = xmlDocGetRootElement(saved_cal)->xmlChildrenNode;
 		cur = xmlDocGetRootElement(in_command)->xmlChildrenNode;
-		xmlChar date[6];
+		xmlChar saved_date[6];
+		xmlChar req_date[6];
+		char eventsList[1000];
+		getEventAttribute(in_command,cur,"startDate",req_date);
 		while (saved_root != NULL ){
 			if (xmlStrcmp(saved_root->name, "event")==0){
-				getEventAttribute(saved_cal,saved_root,"startDate",date);
+				getEventAttribute(saved_cal,saved_root,"startDate",saved_date);
 				//date = xmlNodeListGetString(saved_cal, saved_root->xmlChildrenNode,1);
-				printf("%s\n",date);
+				if (strcmp(req_date,saved_date) == 0) {
+					printEvent(saved_cal,saved_root,eventsList);
+				}
 			}
 		 	saved_root=saved_root->next;
+		 	if(DEBUG) printf("%s\n",eventsList);
 		 }
+		 if(DEBUG) printf("%d\n",strlen(eventsList));
+		 uint16_t numEvents, NnumEvents;
+		 numEvents = (strlen(eventsList) == 0) ?  0 : 1;
+		 if(DEBUG) printf("%d\n",numEvents);
+		 NnumEvents = htons(numEvents);
 
-
+	 	send(clientfd, &NnumEvents, sizeof(uint16_t), 0);
+	 	send(clientfd, (uint32_t)strlen(eventsList), sizeof(uint32_t), 0);
+	 	send(clientfd, eventsList, sizeof(char) * MAXBUFLEN, 0);
+		 
 	} else if (xmlStrcmp(command,(xmlChar *) "getslow") == 0){
 	// GETSLOW goes here
-		//find relevant events and store in array
-		//xmlChar** events;
+		if (stat("calendars", &st) == -1){
+			mkdir("calendars", 0777);
+			printf("Made new calendar folder.\n");
+			// TODO: Just exit
+		}
+		strcpy(calendarPath,(char *)"calendars/");
+		cur = xmlDocGetRootElement(in_command)->xmlChildrenNode->xmlChildrenNode;
+		
+		while (cur != NULL){
+			if (xmlStrcmp(cur->name, (xmlChar *)"calendar") == 0){
+
+				strcpy(calendarName,xmlNodeListGetString(in_command, cur->xmlChildrenNode,1));
+				strcat(calendarPath, calendarName);
+			} 
+			cur = cur->next;
+		}
+		strcat(calendarPath,".xml");
+		if (stat (calendarPath, &st) == 0){
+			saved_cal = xmlParseFile(calendarPath);
+		} else {			
+			// exit
+		}
+		saved_root = xmlDocGetRootElement(saved_cal)->xmlChildrenNode;
+		cur = xmlDocGetRootElement(in_command)->xmlChildrenNode;
+
+		char eventsList[20][100];
+		getEventAttribute(in_command,cur,"startDate",req_date);
+		while (saved_root != NULL ){
+			if (xmlStrcmp(saved_root->name, "event")==0){
+				getEventAttribute(saved_cal,saved_root,"startDate",saved_date);
+				//date = xmlNodeListGetString(saved_cal, saved_root->xmlChildrenNode,1);
+				if (strcmp(req_date,saved_date) == 0) {
+					printEvent(saved_cal,saved_root,eventsList);
+				}
+			}
+		 	saved_root=saved_root->next;
+		 	if(DEBUG) printf("%s\n",eventsList);
+		 }
 
 		//Send number of relevent events
 		uint16_t NnumEvents, numEvents = 0;
