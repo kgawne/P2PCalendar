@@ -102,6 +102,7 @@ int main(int argc, char *argv[]){
 		time_t rawStart = convertDateTime( inDate, inTime);
 		if(DEBUG) printf("CONVERTED TIME returned: %d\n", rawStart);
 		if(DEBUG) printf("Current time = %s", ctime(&rawStart));
+
 		int duration_sec = atof(argv[5]) * 60 * 60;
 		time_t rawEnd = rawStart + duration_sec;
 
