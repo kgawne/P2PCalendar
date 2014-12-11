@@ -18,7 +18,7 @@
 #include <libxml/parser.h>
 #include <libxml/xmlmemory.h>
 
-#define DEBUG 1
+#define DEBUG 0
 #define MAXBUFLEN 2048
 
 time_t convertDateTime(char* inDate, char* inTime){
@@ -101,7 +101,7 @@ int main(int argc, char *argv[]){
 
 		time_t rawStart = convertDateTime( inDate, inTime);
 		if(DEBUG) printf("CONVERTED TIME returned: %d\n", rawStart);
-		printf("Current time = %s", ctime(&rawStart));
+		if(DEBUG) printf("Current time = %s", ctime(&rawStart));
 		int duration_sec = atof(argv[5]) * 60 * 60;
 		time_t rawEnd = rawStart + duration_sec;
 
