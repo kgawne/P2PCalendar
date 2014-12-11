@@ -24,6 +24,10 @@ LAUNCH INSTRUCTIONS
 	Run make.
 	Run the client with the appropriate arguments for your operation
 
+EXTRA FEATURE
+
+	Cloud Storage: for our extra feature, we implemented cloud storage. All of our users' events are safely backed up on the server for future use.
+
 
 EVALUATION
 

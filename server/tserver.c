@@ -422,25 +422,25 @@ void *thread_handler(void *sockfd){
 		saved_root = xmlDocGetRootElement(saved_cal)->xmlChildrenNode;
 		root = xmlDocGetRootElement(saved_cal);
 		cur = xmlDocGetRootElement(in_command)->xmlChildrenNode;
-		char * req_time[40];
-		char * req_name[40]; 
-		char * req_date[40];
-		char * req_length[40];
-		char * sav_time[40];
-		char * sav_name[40]; 
-		char * sav_date[40];
-		char * sav_length[40];
+		char req_time[40];
+		char req_name[40]; 
+		char req_date[40];
+		char req_length[40];
+		char sav_time[40];
+		char sav_name[40]; 
+		char sav_date[40];
+		char sav_length[40];
 		int matches;
-		getEventAttribute(in_command,cur,"startDate",req_date);
-		getEventAttribute(in_command,cur,"name",req_name);
-		getEventAttribute(in_command,cur,"startTime",req_time);
-		getEventAttribute(in_command,cur,"length",req_length);
+		getEventAttribute(in_command,cur,"startDate", (char*)req_date);
+		getEventAttribute(in_command,cur,"name", (char*)req_name);
+		getEventAttribute(in_command,cur,"startTime", (char*)req_time);
+		getEventAttribute(in_command,cur,"length", (char*)req_length);
 		while (saved_root != NULL ){
 			if (xmlStrcmp(saved_root->name, (xmlChar*) "event")==0){
-				getEventAttribute(saved_cal,saved_root,"startDate",sav_date);
-				getEventAttribute(saved_cal,saved_root,"name",sav_name);
-				getEventAttribute(saved_cal,saved_root,"startTime",sav_time);
-				getEventAttribute(saved_cal,saved_root,"length",sav_length);
+				getEventAttribute(saved_cal,saved_root,"startDate", (char*)sav_date);
+				getEventAttribute(saved_cal,saved_root,"name", (char*)sav_name);
+				getEventAttribute(saved_cal,saved_root,"startTime", (char*)sav_time);
+				getEventAttribute(saved_cal,saved_root,"length", (char*)sav_length);
 				matches = numMatches(req_time,sav_time,req_name,sav_name,req_date,sav_date,req_length,sav_length);
 				if (matches >= 2){
 					xmlAddChild(root,cur);
