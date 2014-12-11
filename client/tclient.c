@@ -44,6 +44,8 @@ time_t convertDateTime(char* inDate, char* inTime){
 char* getAttribute(xmlDocPtr doc, char* attribute){
 	//for jack to implement
 	//get root
+	xmlDocPtr in_command, saved_cal;
+    xmlNodePtr cur;
 
 	//traverse tree until attribute found
 
@@ -67,12 +69,6 @@ time_t getEnd(xmlDocPtr doc){
 	time_t rawEnd = startTime + duration_sec;
 
 	return rawEnd;
-}
-
-int conflictExists(xmlDocPtr doc1, xmlDocPtr doc2){
-	if (getStart(doc1) < getEnd(doc2)) return 1; //doc1 starts during doc2
-	else if (getStart(doc2) < getEnd(doc1)) return 1; //doc1 starts during doc2
-	else return 0;
 }
 
 int main(int argc, char *argv[]){
