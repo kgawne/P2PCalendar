@@ -82,23 +82,32 @@ int bindToPort(char* portNum){ //bind to that port. Returns sockListen_fd
 	return sockListen_fd;
 }
 
-int conflictExists( xmlDocPtr doc1, xmlDocPtr doc2){
-	if ( getTime(doc1, 0) < getTime(doc2, 1)) return 1; //if first starts before second ends
-	else if ( getTime(doc2, 0) < getTime(doc1, 1)) return 1; //if second starts before first ends
-}
+// int conflictExists( xmlDocPtr doc1, xmlDocPtr doc2){
+// 	if ( getTime(doc1, 0) < getTime(doc2, 1)) return 1; //if first starts before second ends
+// 	else if ( getTime(doc2, 0) < getTime(doc1, 1)) return 1; //if second starts before first ends
+// }
 
 void *thread_handler(void *sockfd){
  	//Get the socket descriptor
     int clientfd = *(int*)sockfd;
 
-    xmlChar *buffer = malloc(sizeof(xmlChar) * 1024) ;
-    xmlDocPtr in_command;
+
+    xmlChar *buffer = malloc(sizeof(xmlChar) * MAXBUFLEN) ;
+
+    xmlDocPtr in_command, saved_cal;
     xmlNodePtr cur;
-    xmlChar * command;
-    FILE * calendar;
-    char * calendarPath;
+    xmlNodePtr saved_root;
+    xmlNodePtr root;
+    xmlChar debug_dump[1000];
+    xmlChar command[40];
+    char calendarPath[40];
+    xmlBufferPtr tempEvent = xmlBufferCreate();
+    char tempEvents[1000];
+    char calendarName[40];
+    int debug_size;
 
     struct stat st = {0};
+
 
     //Fully connected! Yay!
     if (DEBUG) printf("Inside thread\n");
@@ -115,8 +124,9 @@ void *thread_handler(void *sockfd){
 	if(DEBUG) printf("server: received xml----%s\n", buffer);
 
 	in_command = xmlParseDoc(buffer);
-	cur = xmlDocGetRootElement(in_command);
-	strcpy(command,cur->name);
+	cur = xmlDocGetRootElement(in_command)->xmlChildrenNode->next;
+	if(DEBUG) printf("parsing buffer\n");
+	strcpy(command,xmlNodeListGetString(in_command, cur->xmlChildrenNode,1));
 	if(DEBUG) printf("server: command = %s\n", command);
 
 	if (xmlStrcmp(command,(xmlChar *) "add") == 0){
@@ -126,20 +136,73 @@ void *thread_handler(void *sockfd){
 			printf("Made new calendar folder.\n");
 		}
 		strcpy(calendarPath,(char *)"calendars/");
-		cur = cur->xmlChildrenNode;
-		if(DEBUG) printf("before loop\n");
+		cur = xmlDocGetRootElement(in_command)->xmlChildrenNode->xmlChildrenNode;
+		
 		while (cur != NULL){
 			if (xmlStrcmp(cur->name, (xmlChar *)"calendar") == 0){
 				if (DEBUG) printf("%s\n", cur->name);
-				strcat(calendarPath, xmlNodeListGetString(in_command, cur->xmlChildrenNode,1));
-				// printf("%s\n", xmlNodeListGetString(in_command, cur->xmlChildrenNode,1));
+				strcpy(calendarName,xmlNodeListGetString(in_command, cur->xmlChildrenNode,1));
+				strcat(calendarPath, calendarName);
 			} 
 			cur = cur->next;
 		}
-		// if(DEBUG) printf("server: calendar path = %s\n", calendarPath);
-		// strcat(calendarPath,"")
-		// calendar = fopen("calendars")
-	// end add
+		strcat(calendarPath,".xml");
+		
+		if (stat (calendarPath, &st) == 0){
+			saved_cal = xmlParseFile(calendarPath);
+		} else {
+			
+			saved_cal = xmlNewDoc("1.0");
+			saved_root = xmlNewNode(NULL,calendarName);
+			xmlDocSetRootElement(saved_cal,saved_root);	
+		}
+		saved_root = xmlDocGetRootElement(saved_cal);
+		root = saved_root;
+		cur = xmlDocGetRootElement(in_command)->xmlChildrenNode;
+		xmlAddChild(root,cur);
+		
+		xmlSaveFormatFile(calendarPath, saved_cal, 1);
+
+		// TODO: RESPONSE
+	} else if (xmlStrcmp(command,(xmlChar *) "remove") == 0) {
+
+		if (stat("calendars", &st) == -1){
+			mkdir("calendars", 0777);
+			printf("Made new calendar folder.\n");
+			// TODO: Just exit
+		}
+		strcpy(calendarPath,(char *)"calendars/");
+		cur = xmlDocGetRootElement(in_command)->xmlChildrenNode->xmlChildrenNode;
+		
+		while (cur != NULL){
+			if (xmlStrcmp(cur->name, (xmlChar *)"calendar") == 0){
+				if (DEBUG) printf("%s\n", cur->name);
+				strcpy(calendarName,xmlNodeListGetString(in_command, cur->xmlChildrenNode,1));
+				strcat(calendarPath, calendarName);
+			} 
+			cur = cur->next;
+		}
+		strcat(calendarPath,".xml");
+		if (stat (calendarPath, &st) == 0){
+			// exit
+		} else {
+			
+			saved_cal = xmlNewDoc("1.0");
+			saved_root = xmlNewNode(NULL,calendarName);
+			xmlDocSetRootElement(saved_cal,saved_root);	
+		}
+		saved_root = xmlDocGetRootElement(saved_cal)->xmlChildrenNode;
+		cur = xmlDocGetRootElement(in_command)->xmlChildrenNode;
+		while (saved_root != NULL ){
+			if (xmlStrcmp(saved_root->name, "event")==0){
+				cur = saved_root->xmlChildrenNode;
+				while (cur != NULL ){
+					printf("%s\n", cur->name);
+					cur=cur->next;
+				}
+			}
+		 	saved_root=saved_root->next;
+		}
 
 	} else if (xmlStrcmp(command,(xmlChar *) "get") == 0) {
 // 	GET goes here
@@ -172,6 +235,20 @@ void *thread_handler(void *sockfd){
 
 	return 0;
 }
+
+// int getIntFromTree(xmlDocPtr doc, xmlNodePtr cur, char *type){
+// 	while (cur != NULL){
+// 		if (xmlStrcmp(cur->name, (xmlChar *)type) == 0){
+// 			return(atoi(xmlNodeListGetString(in_command, cur->xmlChildrenNode,1)))
+// 		} 
+// 		cur = cur->next;
+// 	}
+// 	return -1;
+// }
+
+// bool conflicts(xmlDocPtr doc, xmlNodePtr cur, int d, int m, int y, int h, int m){
+// 	if ()
+// }
 
 void iterative_handler(void *sockfd){
 	//get the socket descriptor

@@ -80,9 +80,9 @@ int main(int argc, char *argv[]){
 		}
 
 		toSend = xmlNewDoc("1.0");
-		root = xmlNewNode(NULL,"add");
+		root = xmlNewNode(NULL,"message");
 		xmlDocSetRootElement(toSend,root);
-		cur = xmlDocGetRootElement(toSend);
+		cur = xmlNewTextChild(root, NULL, "event", NULL);
 
 		char startStr[25], endStr[25];
 		sprintf(startStr, "%d", &rawStart);
@@ -93,6 +93,7 @@ int main(int argc, char *argv[]){
 		xmlNewTextChild(cur, NULL, "calendar", argv[1]);
 		xmlNewTextChild(cur, NULL, "length", argv[5]);
 		xmlNewTextChild(cur, NULL, "name", argv[6]);
+		xmlAddSibling(cur,xmlNewDocNode(toSend,NULL,"command","add"));
 
 		xmlDocDumpMemory(toSend,&doc,&xml_size);
 		xmlSaveFormatFile("sending.xml", toSend, 1);
@@ -117,11 +118,12 @@ int main(int argc, char *argv[]){
 		sprintf(startStr, "%d", &rawStart);
 
 		toSend = xmlNewDoc("1.0");
-		root = xmlNewNode(NULL,"remove");
+		root = xmlNewNode(NULL,"event");
 		xmlDocSetRootElement(toSend,root);
 		cur = xmlDocGetRootElement(toSend);
 		xmlNewTextChild(cur, NULL, "rawStart", startStr);
 		xmlNewTextChild(cur, NULL, "calendar", argv[1]);
+		xmlNewDocNode(toSend,NULL,"command","remove");
 
 		xmlDocDumpMemory(toSend,&doc,&xml_size);
 		xmlSaveFormatFile("sending.xml", toSend, 1);
@@ -154,7 +156,7 @@ int main(int argc, char *argv[]){
 		sprintf(endStr, "%d", &rawEnd);
 
 		toSend = xmlNewDoc("1.0");
-		root = xmlNewNode(NULL,"update");
+		root = xmlNewNode(NULL,"event");
 		xmlDocSetRootElement(toSend,root);
 		cur = xmlDocGetRootElement(toSend);
 		xmlNewTextChild(cur, NULL, "rawStart", startStr);
@@ -162,6 +164,7 @@ int main(int argc, char *argv[]){
 		xmlNewTextChild(cur, NULL, "length", argv[5]);
 		xmlNewTextChild(cur, NULL, "name", argv[6]);
 		xmlNewTextChild(cur, NULL, "calendar", argv[1]);
+		xmlNewDocNode(toSend,NULL,"command","update");
 
 		xmlDocDumpMemory(toSend,&doc,&xml_size);
 		xmlSaveFormatFile("sending.xml", toSend, 1);
@@ -186,11 +189,12 @@ int main(int argc, char *argv[]){
 		sprintf(startStr, "%d", &rawStart);
 
 		toSend = xmlNewDoc("1.0");
-		root = xmlNewNode(NULL,"get");
+		root = xmlNewNode(NULL,"event");
 		xmlDocSetRootElement(toSend,root);
 		cur = xmlDocGetRootElement(toSend);
 		xmlNewTextChild(cur, NULL, "rawStart", startStr);
 		xmlNewTextChild(cur, NULL, "calendar", argv[1]);
+		xmlAddSibling(root,xmlNewDocNode(toSend,NULL,"command","get"));
 
 		xmlDocDumpMemory(toSend,&doc,&xml_size);
 		xmlSaveFormatFile("sending.xml", toSend, 1);
@@ -203,11 +207,11 @@ int main(int argc, char *argv[]){
 		}
 		
 		toSend = xmlNewDoc("1.0");
-		root = xmlNewNode(NULL,"getslow");
+		root = xmlNewNode(NULL,"event");
 		xmlDocSetRootElement(toSend,root);
 		cur = xmlDocGetRootElement(toSend);
 		xmlNewTextChild(cur, NULL, "calendar", argv[1]);
-
+		xmlAddSibling(root,xmlNewDocNode(toSend,NULL,"command","getslow"));
 		xmlDocDumpMemory(toSend,&doc,&xml_size);
 		xmlSaveFormatFile("sending.xml", toSend, 1);
 	} else {
