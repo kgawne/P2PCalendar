@@ -315,8 +315,23 @@ int main(int argc, char *argv[]){
 	hints.ai_family = AF_UNSPEC;
 	hints.ai_socktype = SOCK_STREAM;
 
-	getaddrinfo("student02.cse.nd.edu","9771", &hints, &res); 
-	//NOTE: hard-coded to student00 in order to match argument constraints
+	//Read in server info
+	FILE *serverFile = fopen(".myCal", "r");
+	if (serverFile == NULL){
+		printf(".myCal file cannot be opened.\n");
+		exit(1);
+	}
+
+	char line[128];
+	char *hostname, *portnum;
+	fscanf(serverFile, "%s\n", hostname);
+	fgets( line, sizeof line, serverFile);
+	portnum = line;
+
+	fclose(serverFile);
+	if(DEBUG) printf("Connecting to '%s' on port '%s'\n", hostname, portnum);	
+
+	getaddrinfo(hostname, portnum, &hints, &res); 
 
 	if ((serverfd = socket(res->ai_family,res->ai_socktype,res->ai_protocol)) == -1){
 		printf("Socket Failure\n");
@@ -328,7 +343,8 @@ int main(int argc, char *argv[]){
 	gethostname(local_host, 1023);
 
 	if (connect(serverfd, res->ai_addr, res->ai_addrlen) < 0){
-		printf("connection failure\n");
+		printf("Could not connect to server '%s' on port %s.\n", hostname, portnum);
+		printf("\tHINT: Is the server running here?\n");
 		exit(1);
 	}
 
