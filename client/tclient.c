@@ -240,9 +240,6 @@ int main(int argc, char *argv[]){
 
 	} 
 
-
-//--------------------------------------------------------------------------
-
 	//Socket set up
 	int serverfd;
 	struct addrinfo hints, *res;
@@ -300,12 +297,7 @@ int main(int argc, char *argv[]){
 
 
 	if ( !strcmp( cmd, "add") || !strcmp(cmd, "remove") || !strcmp(cmd, "update")){
-		//Get response size
-		// uint32_t Nxml_size, xml_size;
-		// recv( serverfd, &Nxml_size, sizeof(uint32_t), 0);
-		// xml_size = ntohl(Nxml_size);
 
-		//Get response data
 		bzero(buffer, MAXBUFLEN);
 		recv (serverfd, buffer, sizeof(xmlChar) * MAXBUFLEN, 0);
 
@@ -325,20 +317,12 @@ int main(int argc, char *argv[]){
 		}else{
 			int i = 0;
 			for ( i = 0; i < numEvents; i++){
-
-				//Get event size
-				// uint32_t Nxml_size, xml_size;
-				// recv( serverfd, &Nxml_size, sizeof(uint32_t), 0);
-
-				// xml_size = ntohl(Nxml_size);
-				// printf("%d\n",xml_size);
-
 				//Get event data
 				bzero(buffer, MAXBUFLEN);
 				recv (serverfd, buffer, sizeof(char) * MAXBUFLEN, 0);
 
 				//Print event
-				if(DEBUG) printf("%s\n", buffer);	
+				printf("%s\n", buffer);	
 				//???
 
 			}			
