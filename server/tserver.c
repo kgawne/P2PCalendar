@@ -113,7 +113,7 @@ int main(int argc, char* argv[]){ //remove arg input...?
 
 	//Bind to port 9770
 	char* portNum = "9770";
-	int sockListen_fd = bindToPort(portNum);
+	socklen_t sockListen_fd = bindToPort(portNum);
 	int err = 0;
 
 	//Listen for connections

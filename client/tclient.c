@@ -13,7 +13,6 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
-#include "sensor_data.h"
 #include <time.h>
 #include <pthread.h>
 
