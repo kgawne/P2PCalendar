@@ -140,7 +140,7 @@ int main(int argc, char *argv[]){
 		}
 
 		toSend = xmlNewDoc("1.0");
-		root = xmlNewNode(NULL,"event");
+		root = xmlNewNode(NULL,"message");
 		xmlDocSetRootElement(toSend,root);
 
 		cur = xmlNewTextChild(root, NULL, "event", NULL);
@@ -180,7 +180,7 @@ int main(int argc, char *argv[]){
 		sprintf(endStr, "%d", &rawEnd);
 
 		toSend = xmlNewDoc("1.0");
-		root = xmlNewNode(NULL,"event");
+		root = xmlNewNode(NULL,"message");
 		xmlDocSetRootElement(toSend,root);
 		cur = xmlNewTextChild(root, NULL, "event", NULL);
 		xmlNewTextChild(cur, NULL, "startDate", argv[3]);
@@ -213,7 +213,7 @@ int main(int argc, char *argv[]){
 		sprintf(startStr, "%d", &rawStart);
 
 		toSend = xmlNewDoc("1.0");
-		root = xmlNewNode(NULL,"event");
+		root = xmlNewNode(NULL,"message");
 		xmlDocSetRootElement(toSend,root);
 		cur = xmlNewTextChild(root, NULL, "event", NULL);
 		xmlNewTextChild(cur, NULL, "startDate", argv[3]);
