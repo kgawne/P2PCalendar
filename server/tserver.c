@@ -82,10 +82,73 @@ int bindToPort(char* portNum){ //bind to that port. Returns sockListen_fd
 	return sockListen_fd;
 }
 
-// int conflictExists( xmlDocPtr doc1, xmlDocPtr doc2){
-// 	if ( getTime(doc1, 0) < getTime(doc2, 1)) return 1; //if first starts before second ends
-// 	else if ( getTime(doc2, 0) < getTime(doc1, 1)) return 1; //if second starts before first ends
-// }
+time_t convertDateTime(char* inDate, char* inTime){
+	time_t rawtime = 0;
+	struct tm temp = {0,0,0, 0,0,0, 0,0,0};
+
+	//Convert date
+	temp.tm_mon = (inDate[0] - '0') * 10 + (inDate[1] - '0') - 1;
+	temp.tm_mday = (inDate[2] - '0') * 10 + (inDate[3] - '0');
+	temp.tm_year = 100 + (inDate[4] - '0')*10 + (inDate[5] - '0');
+
+	//Convert time
+	temp.tm_hour = (inTime[0] - '0')*10 + (inTime[1] - '0');
+	temp.tm_min = (inTime[2] - '0')*10 + (inTime[3] - '0');
+
+	char buffer[25];
+	strftime(buffer, 25, "%Y:%m:%d%H:%M:%S", &temp);
+	if(DEBUG) printf("CONVERTED TIME: %s\n", buffer);
+	rawtime = mktime(&temp);
+	return rawtime;
+}
+
+void getEventAttribute(xmlDocPtr doc, xmlNodePtr event, char* attribute, char* value){ //Given a ptr to the event, return the given attribute
+	//for jack to implement
+	//get root
+    xmlNodePtr cur = event;
+    char buffer[40];
+
+	//traverse tree until attribute found
+	while (cur != NULL){
+		if (xmlStrcmp(cur->name, (xmlChar *) attribute) == 0){
+			if (DEBUG) printf("%s\n", cur->name);
+			strcpy(buffer, xmlNodeListGetString(doc, cur->xmlChildrenNode,1));
+			break;
+		} 
+		cur = cur->next;
+	}
+
+	//return attribute value
+	strcpy(value, buffer);
+}
+
+time_t getStart(xmlDocPtr doc, xmlNodePtr event){
+	char* inDate, *inTime;
+	getEventAttribute(doc, event, "startDate", inDate);
+	getEventAttribute(doc, event, "startTime", inTime);
+
+	return convertDateTime (inDate, inTime);
+}
+
+time_t getEnd(xmlDocPtr doc, xmlNodePtr event){
+	char *inDate,*inTime, *length;
+	getEventAttribute(doc, event, "startDate", inDate);
+	getEventAttribute(doc, event, "startTime", inTime);
+	getEventAttribute(doc, event, "length", length);
+
+	time_t startTime = convertDateTime (inDate, inTime);
+	int duration_sec = atof(length) * 60 * 60;
+	time_t rawEnd = startTime + duration_sec;
+
+	return rawEnd;
+}
+
+int conflictExists(xmlDocPtr doc, xmlNodePtr event1, xmlNodePtr event2){
+	if (getStart(doc, event1) < getEnd(doc, event2)) return 1; //doc1 starts during doc2
+	else if (getStart(doc, event2) < getEnd(doc, event1)) return 1; //doc2 starts during doc1
+	else return 0;
+}
+
 
 void *thread_handler(void *sockfd){
  	//Get the socket descriptor
