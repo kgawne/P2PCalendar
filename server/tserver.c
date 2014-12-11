@@ -175,14 +175,14 @@ int eventConflictExists(xmlDocPtr doc1, xmlNodePtr event1, xmlDocPtr doc2, xmlNo
 	else return 0;
 }
 
-xmlNodePtr calendarConflictExists(xmlDocPtr in_command, xmlNodePtr event, xmlDocPtr saved_cal){
-	xmlNodePtr conflict = NULL;
+int calendarConflictExists(xmlDocPtr in_command, xmlNodePtr event, xmlDocPtr saved_cal){
+	int conflict = 0;
 	xmlNodePtr cur = xmlDocGetRootElement(saved_cal)->xmlChildrenNode;
 
 	while( cur != NULL){
 		if (xmlStrcmp(cur->name, (xmlChar *) "event")){
 			if(eventConflictExists(in_command, event, saved_cal, cur)){
-				conflict = cur;
+				conflict = 1;
 				return conflict;
 			}
 		}
@@ -235,7 +235,7 @@ void *thread_handler(void *sockfd){
 		// begin add
 		if (stat("calendars", &st) == -1){
 			mkdir("calendars", 0777);
-			printf("Made new calendar folder.\n");
+			// printf("Made new calendar folder.\n");
 			strcat(printText, "Made new calendar folder. ");
 		}
 		strcpy(calendarPath,(char *)"calendars/");
@@ -263,16 +263,16 @@ void *thread_handler(void *sockfd){
 		root = saved_root;
 		cur = xmlDocGetRootElement(in_command)->xmlChildrenNode;
 
-		xmlNodePtr conflict = NULL;
+		int conflict = 0;
 		conflict = calendarConflictExists(in_command, cur, saved_cal);
-		if (conflict != NULL){
+		if (conflict != 0){
 			xmlAddChild(root,cur);			
 			xmlSaveFormatFile(calendarPath, saved_cal, 1);
 			sprintf(reply, "success");
 			char cName[50];
-			time_t cDateTime = getStart(saved_cal, conflict);
-			getEventAttribute(saved_cal, conflict, "name", cName);
-			sprintf(printText, "The value has a conflict with %s on %s\n", cName, ctime(&cDateTime));
+			// time_t cDateTime = getStart(saved_cal, conflict);
+			// getEventAttribute(saved_cal, conflict, "name", cName);
+			sprintf(printText, "The value has a conflict.\n");
 		}else{
 			xmlAddChild(root,cur);			
 			xmlSaveFormatFile(calendarPath, saved_cal, 1);
@@ -283,29 +283,10 @@ void *thread_handler(void *sockfd){
 			sprintf(printText, "'%s' was successfully added to %s\n", cName, ctime(&cDateTime));	
 		}
 
-
-		//Prep Response
-		xmlNodePtr rCur, rRoot;
-		uint32_t xml_sizeR, Nxml_sizeR;
-		xmlChar* text;
-		xmlDocPtr response = xmlNewDoc( (xmlChar*) "1.0");
-		rRoot = xmlNewNode(NULL, (xmlChar*) "response");
-		xmlDocSetRootElement(response, rRoot);
-		rCur = xmlNewTextChild(rRoot, NULL, (xmlChar*) "reply", (xmlChar*) reply);
-		xmlNewTextChild(rRoot, NULL, (xmlChar*) "printText", (xmlChar*) printText);
-
-		xmlDocDumpMemory(response,&text,(int*)&xml_sizeR);
-		xmlSaveFormatFile("addResponse.xml", response, 1);
-
-		//send size
-		Nxml_sizeR = htonl(xml_sizeR);
-		send(clientfd, &Nxml_sizeR, sizeof(uint32_t), 0);
-		if(DEBUG) printf("server: sent xmlSizeR--%d\n", xml_size);
-
 		//Send reponse
-		send(clientfd, text, xml_sizeR, 0);
+		send(clientfd, printText, MAXBUFLEN, 0);
 
-		if (DEBUG) printf("server: sending response----%s\n",text);
+		if (DEBUG) printf("server: sending response----%s\n",printText);
 
 	} else if (xmlStrcmp(command,(xmlChar *) "remove") == 0) {
 
@@ -360,29 +341,9 @@ void *thread_handler(void *sockfd){
 			sprintf(reply, "failure");
 			sprintf(printText, "The event could not be found. Are you sure it was there?\n");
 		}
+		send(clientfd, printText, MAXBUFLEN, 0);
 
-		//Prep Response
-		xmlNodePtr rCur, rRoot;
-		uint32_t xml_sizeR, Nxml_sizeR;
-		xmlChar* text;
-		xmlDocPtr response = xmlNewDoc( (xmlChar*) "1.0");
-		rRoot = xmlNewNode(NULL, (xmlChar*) "response");
-		xmlDocSetRootElement(response, rRoot);
-		rCur = xmlNewTextChild(rRoot, NULL, (xmlChar*) "reply", (xmlChar*) reply);
-		xmlNewTextChild(rRoot, NULL, (xmlChar*) "printText", (xmlChar*) printText);
-
-		xmlDocDumpMemory(response,&text, (int*)&xml_sizeR);
-		xmlSaveFormatFile("removeResponse.xml", response, 1);
-
-		//send size
-		Nxml_sizeR = htonl(xml_sizeR);
-		send(clientfd, &Nxml_sizeR, sizeof(uint32_t), 0);
-		if(DEBUG) printf("server: sent xmlSizeR--%d\n", xml_size);
-
-		//Send response
-		send(clientfd, text, xml_sizeR, 0);
-
-		if (DEBUG) printf("server: sending response----%s\n",text);
+		if (DEBUG) printf("server: sending response----%s\n",printText);
 
 	} else if (xmlStrcmp(command,(xmlChar *) "update") == 0) {
 		if (stat("calendars", &st) == -1){
