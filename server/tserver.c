@@ -195,14 +195,9 @@ void *thread_handler(void *sockfd){
     xmlNodePtr cur;
     xmlNodePtr saved_root;
     xmlNodePtr root;
-    xmlChar debug_dump[1000];
     xmlChar command[40];
-    xmlChar cmd_time[40];
     char calendarPath[40];
-    xmlBufferPtr tempEvent = xmlBufferCreate();
-    char tempEvents[1000];
     char calendarName[40];
-    int debug_size;
 
     struct stat st = {0};
 
@@ -278,7 +273,6 @@ void *thread_handler(void *sockfd){
 		}
 
 
-		// TODO: RESPONSE
 		//Prep Response
 		xmlNodePtr rCur, rRoot;
 		uint32_t xml_sizeR, Nxml_sizeR;
@@ -289,12 +283,12 @@ void *thread_handler(void *sockfd){
 		rCur = xmlNewTextChild(rRoot, NULL, (xmlChar*) "reply", (xmlChar*) reply);
 		xmlNewTextChild(rRoot, NULL, (xmlChar*) "printText", (xmlChar*) printText);
 
-		xmlDocDumpMemory(response,&text,&xml_sizeR);
+		xmlDocDumpMemory(response,&text,(int*)&xml_sizeR);
 		xmlSaveFormatFile("addResponse.xml", response, 1);
 
 		//send size
 		Nxml_sizeR = htonl(xml_sizeR);
-		send(clientfd, Nxml_sizeR, sizeof(Nxml_sizeR), 0);
+		send(clientfd, &Nxml_sizeR, sizeof(uint32_t), 0);
 		if(DEBUG) printf("server: sent xmlSizeR--%d\n", xml_size);
 
 		//Send reponse
@@ -313,8 +307,6 @@ void *thread_handler(void *sockfd){
 		//Send response
 
 	} else if (xmlStrcmp(command,(xmlChar *) "remove") == 0) {
-
-		xmlNodePtr cmd_time;
 
 		if (stat("calendars", &st) == -1){
 			mkdir("calendars", 0777);
@@ -346,20 +338,51 @@ void *thread_handler(void *sockfd){
 		saved_root = xmlDocGetRootElement(saved_cal)->xmlChildrenNode;
 		cur = xmlDocGetRootElement(in_command)->xmlChildrenNode;
 		time_t req_time = getStart(in_command, cur);
+		int success = 0;
 		while (saved_root != NULL ){
 			if (xmlStrcmp(saved_root->name, (xmlChar*) "event")==0){
 				if (req_time == getStart(saved_cal, saved_root)){
 					xmlUnlinkNode(saved_root);
 					xmlFreeNode(saved_root);
 					xmlSaveFormatFile(calendarPath, saved_cal, 1);
-					//SUCCESS
-					return 1;
+					sprintf(reply, "success");
+					sprintf(printText, "The event was removed successfully!\n");
+					success = 1;
+					break;
 				}
 				saved_root=saved_root->next;
 			}
 		 	saved_root=saved_root->next;
 		}
+
 		//FAIL
+		if (!success){
+			sprintf(reply, "failure");
+			sprintf(printText, "The event could not be found. Are you sure it was there?\n");
+		}
+
+		//Prep Response
+		xmlNodePtr rCur, rRoot;
+		uint32_t xml_sizeR, Nxml_sizeR;
+		xmlChar* text;
+		xmlDocPtr response = xmlNewDoc( (xmlChar*) "1.0");
+		rRoot = xmlNewNode(NULL, (xmlChar*) "response");
+		xmlDocSetRootElement(response, rRoot);
+		rCur = xmlNewTextChild(rRoot, NULL, (xmlChar*) "reply", (xmlChar*) reply);
+		xmlNewTextChild(rRoot, NULL, (xmlChar*) "printText", (xmlChar*) printText);
+
+		xmlDocDumpMemory(response,&text, (int*)&xml_sizeR);
+		xmlSaveFormatFile("removeResponse.xml", response, 1);
+
+		//send size
+		Nxml_sizeR = htonl(xml_sizeR);
+		send(clientfd, &Nxml_sizeR, sizeof(uint32_t), 0);
+		if(DEBUG) printf("server: sent xmlSizeR--%d\n", xml_size);
+
+		//Send response
+		send(clientfd, text, xml_sizeR, 0);
+
+		if (DEBUG) printf("server: sending response----%s\n",text);
 
 	} else if (xmlStrcmp(command,(xmlChar *) "get") == 0) {
 			// 	GET goes here
@@ -374,7 +397,7 @@ void *thread_handler(void *sockfd){
 		while (cur != NULL){
 			if (xmlStrcmp(cur->name, (xmlChar *)"calendar") == 0){
 
-				strcpy(calendarName,xmlNodeListGetString(in_command, cur->xmlChildrenNode,1));
+				strcpy(calendarName, (char*)xmlNodeListGetString(in_command, cur->xmlChildrenNode,1));
 				strcat(calendarPath, calendarName);
 			} 
 			cur = cur->next;
@@ -390,26 +413,27 @@ void *thread_handler(void *sockfd){
 		xmlChar saved_date[6];
 		xmlChar req_date[6];
 		char eventsList[1000];
-		getEventAttribute(in_command,cur,"startDate",req_date);
+		getEventAttribute(in_command,cur,"startDate",(char*)req_date);
 		while (saved_root != NULL ){
-			if (xmlStrcmp(saved_root->name, "event")==0){
-				getEventAttribute(saved_cal,saved_root,"startDate",saved_date);
+			if (xmlStrcmp(saved_root->name, (xmlChar*)"event")==0){
+				getEventAttribute(saved_cal,saved_root,(char*)"startDate",(char*)saved_date);
 				//date = xmlNodeListGetString(saved_cal, saved_root->xmlChildrenNode,1);
-				if (strcmp(req_date,saved_date) == 0) {
+				if (strcmp((char*)req_date,(char*)saved_date) == 0) {
 					printEvent(saved_cal,saved_root,eventsList);
 				}
 			}
 		 	saved_root=saved_root->next;
 		 	if(DEBUG) printf("%s\n",eventsList);
 		 }
-		 if(DEBUG) printf("%d\n",strlen(eventsList));
+		 if(DEBUG) printf("%d\n",(int)strlen(eventsList));
 		 uint16_t numEvents, NnumEvents;
 		 numEvents = (strlen(eventsList) == 0) ?  0 : 1;
 		 if(DEBUG) printf("%d\n",numEvents);
 		 NnumEvents = htons(numEvents);
 
 	 	send(clientfd, &NnumEvents, sizeof(uint16_t), 0);
-	 	send(clientfd, (uint32_t)strlen(eventsList), sizeof(uint32_t), 0);
+	 	uint32_t x = strlen(eventsList);
+	 	send(clientfd, &x, sizeof(uint32_t), 0);
 	 	send(clientfd, eventsList, sizeof(char) * MAXBUFLEN, 0);
 		 
 	} else if (xmlStrcmp(command,(xmlChar *) "getslow") == 0){
@@ -425,7 +449,7 @@ void *thread_handler(void *sockfd){
 		while (cur != NULL){
 			if (xmlStrcmp(cur->name, (xmlChar *)"calendar") == 0){
 
-				strcpy(calendarName,xmlNodeListGetString(in_command, cur->xmlChildrenNode,1));
+				strcpy(calendarName,(char*)xmlNodeListGetString(in_command, cur->xmlChildrenNode,1));
 				strcat(calendarPath, calendarName);
 			} 
 			cur = cur->next;
@@ -442,7 +466,7 @@ void *thread_handler(void *sockfd){
 		char eventsList[20][100];
 		int eventIndex = 0;
 		while (saved_root != NULL ){
-			if (xmlStrcmp(saved_root->name, "event")==0){
+			if (xmlStrcmp(saved_root->name, (xmlChar*)"event")==0){
 				printEvent(saved_cal,saved_root,eventsList[eventIndex]);
 				eventIndex++;
 			}
@@ -471,7 +495,8 @@ void *thread_handler(void *sockfd){
 				//xmlChar* doc = events[i];
 				//send(clientfd, Nxml_size, sizeof(uint32_t), 0); //send size
 				//send(clientfd, doc, xml_size, 0); //send event
-				send(clientfd, (uint32_t)strlen(eventsList[i]), sizeof(uint32_t), 0);
+				uint32_t x = strlen(eventsList[i]);
+				send(clientfd, &x, sizeof(uint32_t), 0);
 	 			send(clientfd, eventsList[i], sizeof(char) * MAXBUFLEN, 0);
 				sleep(1);
 			}			
