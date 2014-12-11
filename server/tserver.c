@@ -18,7 +18,7 @@
 #include <unistd.h>
 
 #define DEBUG 1
-#define MAXBUFFLEN 1024 //max nmber of bytes at once
+#define MAXBUFLEN 1024 //max nmber of bytes at once
 
 int threaded = 0; //flag for threaded/iterative
 
@@ -82,10 +82,30 @@ int bindToPort(char* portNum){ //bind to that port. Returns sockListen_fd
 void *thread_handler(void *sockfd){
  	//Get the socket descriptor
     int clientfd = *(int*)sockfd;
+    char buffer[MAXBUFLEN];
 
     //Fully connected! Yay!
     if (DEBUG) printf("Inside thread\n");
-	//read in client data
+
+	//read in client packet size
+	uint32_t Nxml_size, xml_size;
+	recv( clientfd, &Nxml_size, sizeof(uint32_t), 0);
+	xml_size = ntohl(Nxml_size);
+	if(DEBUG) printf("server: received xmlSize %u\n", (short unsigned) xml_size);
+
+	//Read in client packet data
+	int numbytesSoFar = 0;
+	while( numbytesSoFar < xml_size){
+		int numbytes, bufSize = MAXBUFLEN;
+		bzero( buffer, MAXBUFLEN);
+
+		if(xml_size - numbytesSoFar < MAXBUFLEN){
+			bufSize = xml_size - numbytesSoFar; //amount left to be read
+		}
+		recv( clientfd, &buf, )
+
+	}
+
 
 
 	return 0;
@@ -96,7 +116,11 @@ void iterative_handler(void *sockfd){
 	int clientfd = *(int*)sockfd;
     if (DEBUG) printf("Inside iterative_handler\n");
 
-    //Operate
+ 	//read in client packet size
+	uint32_t Nxml_size, xml_size;
+	recv( clientfd, &Nxml_size, sizeof(uint32_t), 0);
+	xml_size = ntohl(Nxml_size);
+	if(DEBUG) printf("server: received xmlSize %u\n", (short unsigned) xml_size);
 
 }
 
@@ -122,7 +146,7 @@ int main(int argc, char* argv[]){ //remove arg input...?
 
 	//Bind to port 9770
 	char* portNum = argv[2];
-	socklen_t sockListen_fd = bindToPort(portNum);
+	int sockListen_fd = bindToPort(portNum);
 	int err = 0;
 
 	//Listen for connections
@@ -137,7 +161,7 @@ int main(int argc, char* argv[]){ //remove arg input...?
 
 		int clientfd;
 		struct sockaddr_in client_addr;
-		int clientAddrLen = sizeof(client_addr);
+		socklen_t clientAddrLen = sizeof(client_addr);
 		
 		//accept
 		clientfd = accept(sockListen_fd, (struct sockaddr*)&client_addr, &clientAddrLen);

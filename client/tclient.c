@@ -24,7 +24,7 @@ int main(int argc, char *argv[]){
 
 	xmlDocPtr toSend;
 	xmlNodePtr cur, root;
-	int xml_size;
+	uint32_t xml_size;
 	xmlChar *doc;
 
 	//Open connection to server NOTE: hard-coded to student02 in order to 
@@ -322,9 +322,15 @@ int main(int argc, char *argv[]){
 		exit(1);
 	}
 
-	//Send data structure to server
+
+	//Send data size to server
+	uint32_t Nxml_size = htonl(xml_size);
+	send(socket_fd, &Nxml_size, sizeof(Nxml_size), 0);
+	if(DEBUG) printf("client: sent xmlSize--%d\n", xml_size);
+
+	//Send data to server
 	send(socket_fd, &(doc), xml_size, 0);
-	//if (DEBUG) printf("Sent %f\n",xml_to_send[i].reading_val);
+//	if (DEBUG) printf("Sending size %f\n",xml_to_send[i].reading_val);
 
 	//Handle server response...
 
