@@ -272,12 +272,8 @@ void *thread_handler(void *sockfd){
 
 		int conflict = 0;
 		conflict = calendarConflictExists(in_command, cur, saved_cal);
-<<<<<<< HEAD
+
 		if (conflict != 0){
-=======
-		//printText = "nada";
-		if (conflict != NULL){
->>>>>>> e7dc774d6ae837a7843e20f8bb0a39d989a7adb5
 			xmlAddChild(root,cur);			
 			xmlSaveFormatFile(calendarPath, saved_cal, 1);
 			sprintf(reply, "success");
