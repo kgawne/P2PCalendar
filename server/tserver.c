@@ -16,6 +16,8 @@
 #include <time.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <libxml/parser.h>
+#include <libxml/xmlmemory.h>
 
 #define DEBUG 1
 #define MAXBUFLEN 1024 //max nmber of bytes at once
@@ -82,7 +84,7 @@ int bindToPort(char* portNum){ //bind to that port. Returns sockListen_fd
 void *thread_handler(void *sockfd){
  	//Get the socket descriptor
     int clientfd = *(int*)sockfd;
-    char buffer[MAXBUFLEN];
+    xmlChar buffer[MAXBUFLEN];
 
     //Fully connected! Yay!
     if (DEBUG) printf("Inside thread\n");
@@ -94,17 +96,9 @@ void *thread_handler(void *sockfd){
 	if(DEBUG) printf("server: received xmlSize %u\n", (short unsigned) xml_size);
 
 	//Read in client packet data
-	int numbytesSoFar = 0;
-	while( numbytesSoFar < xml_size){
-		int numbytes, bufSize = MAXBUFLEN;
-		bzero( buffer, MAXBUFLEN);
-
-		if(xml_size - numbytesSoFar < MAXBUFLEN){
-			bufSize = xml_size - numbytesSoFar; //amount left to be read
-		}
-		//recv( clientfd, &buf, )
-
-	}
+	bzero(buffer, MAXBUFLEN);
+	recv (clientfd, &buffer, xml_size, 0);
+	if(DEBUG) printf("server: received xml----%s\n", buffer);
 
 
 
