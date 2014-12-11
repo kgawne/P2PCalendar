@@ -108,9 +108,15 @@ void *thread_handler(void *sockfd){
 	strcpy(command,cur->name);
 	if(DEBUG) printf("server: command: %s\n", command);
 
+	if (strcpy(command),(xmlChar *) "add") == 0){
 
+	} else if (strcpy(command),(xmlChar *) "get") == 0) {
+// 	GET goes here
 
+	} else if (strcpy(command),(xmlChar *) "getslow") == 0){
+	// GETSLOW goes here
 
+	}
 
 	return 0;
 }
