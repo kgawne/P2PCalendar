@@ -302,9 +302,7 @@ int main(int argc, char *argv[]){
 		recv (serverfd, buffer, sizeof(xmlChar) * MAXBUFLEN, 0);
 
 		//Print response
-
-		if(DEBUG) printf("server: received - %s\n", buffer);
-		//???
+		printf("%s\n", buffer);
 
 	}else if (strcmp(cmd, "get") || strcmp(cmd, "getslow")){
 		//Get number of events
