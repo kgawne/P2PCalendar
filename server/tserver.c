@@ -96,6 +96,8 @@ void *thread_handler(void *sockfd){
     xmlDocPtr in_command;
     xmlNodePtr cur;
     xmlChar * command;
+    FILE * calendar;
+    char * calendarPath;
 
 
     struct stat st = {0};
@@ -118,14 +120,28 @@ void *thread_handler(void *sockfd){
 	in_command = xmlParseDoc(buffer);
 	cur = xmlDocGetRootElement(in_command);
 	strcpy(command,cur->name);
-	if(DEBUG) printf("server: command: %s\n", command);
+	if(DEBUG) printf("server: command = %s\n", command);
 
 	if (xmlStrcmp(command,(xmlChar *) "add") == 0){
 		// begin add
-		if (stat("/calendars", &st) == -1){
-			mkdir("/calendars", 0777);
+		if (stat("calendars", &st) == -1){
+			mkdir("calendars", 0777);
 			printf("Made new calendar folder.\n");
 		}
+		strcpy(calendarPath,(char *)"calendars/");
+		cur = cur->xmlChildrenNode;
+		if(DEBUG) printf("before loop\n");
+		while (cur != NULL){
+			if (xmlStrcmp(cur->name, (xmlChar *)"calendar") == 0){
+				if (DEBUG) printf("%s\n", cur->name);
+				strcat(calendarPath, xmlNodeListGetString(in_command, cur->xmlChildrenNode,1));
+				// printf("%s\n", xmlNodeListGetString(in_command, cur->xmlChildrenNode,1));
+			} 
+			cur = cur->next;
+		}
+		// if(DEBUG) printf("server: calendar path = %s\n", calendarPath);
+		// strcat(calendarPath,"")
+		// calendar = fopen("calendars")
 	// end add
 
 	} else if (xmlStrcmp(command,(xmlChar *) "get") == 0) {
