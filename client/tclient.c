@@ -335,7 +335,7 @@ int main(int argc, char *argv[]){
 				recv (serverfd, buffer, sizeof(char) * MAXBUFLEN, 0);
 
 				//Print event
-				if(DEBUG) printf("%s\n", i, buffer);	
+				if(DEBUG) printf("%s\n", buffer);	
 				//???
 
 			}			
