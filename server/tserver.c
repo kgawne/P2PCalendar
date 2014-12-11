@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
+#include <sys/stat.h>
 #include <dirent.h>
 #include <sys/socket.h>
 #include <netdb.h>
@@ -93,6 +94,8 @@ void *thread_handler(void *sockfd){
     xmlChar * command;
 >>>>>>> a43566a569e5a4b6a7bcf09d524efef796459ae2
 
+    struct stat st = {0};
+
     //Fully connected! Yay!
     if (DEBUG) printf("Inside thread\n");
 
@@ -112,18 +115,17 @@ void *thread_handler(void *sockfd){
 	strcpy(command,cur->name);
 	if(DEBUG) printf("server: command: %s\n", command);
 
-	if (strcpy(command),(xmlChar *) "add") == 0){
+	if (strcpy(command,(xmlChar *) "add") == 0){
 		// begin add
-
-
-
-
+		if (stat("calendars", &st) == -1){
+			mkdir("calendars", 0777);
+		}
 	// end add
 
-	} else if (strcpy(command),(xmlChar *) "get") == 0) {
+	} else if (strcpy(command,(xmlChar *) "get") == 0) {
 // 	GET goes here
 
-	} else if (strcpy(command),(xmlChar *) "getslow") == 0){
+	} else if (strcpy(command,(xmlChar *) "getslow") == 0){
 	// GETSLOW goes here
 
 	}
