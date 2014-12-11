@@ -149,7 +149,6 @@ int conflictExists(xmlDocPtr doc, xmlNodePtr event1, xmlNodePtr event2){
 	else return 0;
 }
 
-
 void *thread_handler(void *sockfd){
  	//Get the socket descriptor
     int clientfd = *(int*)sockfd;
