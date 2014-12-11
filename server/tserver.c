@@ -94,9 +94,9 @@ void *thread_handler(void *sockfd){
 int main(int argc, char* argv[]){ //remove arg input...?
 
 	//Parse cmd line for server options
-	if (argc != 2){
+	if (argc != 3){
 		puts("\t Please specify iterative or threaded style server");
-		puts("\t\tex: ./myCald threaded\tOR\t./myCald iterative");
+		puts("\t\tex: ./myCald threaded <portNum>\tOR\t./myCald iterative <portNum");
 		exit(1);
 	}else{
 		if(!strcmp(argv[1], "iterative")){
@@ -105,14 +105,14 @@ int main(int argc, char* argv[]){ //remove arg input...?
 			threaded = 1;
 		}else{
 			puts("\t Please specify iterative or threaded style server");
-			puts("\t\tex: ./myCald threaded\tOR\t./myCald iterative");
+			puts("\t\tex: ./myCald threaded <portNum>\tOR\t./myCald iterative <portNum");
 			exit(1);		
 		}
 	}
 
 
 	//Bind to port 9770
-	char* portNum = "9005";
+	char* portNum = argv[2];
 	socklen_t sockListen_fd = bindToPort(portNum);
 	int err = 0;
 

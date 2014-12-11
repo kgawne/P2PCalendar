@@ -30,7 +30,7 @@ int main(int argc, char *argv[]){
 	hints.ai_family = AF_UNSPEC;
 	hints.ai_socktype = SOCK_STREAM;
 
-	getaddrinfo("student00.cse.nd.edu","9770", &hints, &res); 
+	getaddrinfo("student02.cse.nd.edu","9770", &hints, &res); 
 	//NOTE: hard-coded to student00 in order to match argument constraints
 
 	if ((socket_fd = socket(res->ai_family,res->ai_socktype,res->ai_protocol)) == -1){
