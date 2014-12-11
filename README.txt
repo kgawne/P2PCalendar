@@ -3,7 +3,6 @@ Kelly Gawne and Jack Magiera
 
 FILES INCLUDED
 	README.txt
-	thermo.h
 	CLIENT
 		tclient.c
 		makefile
@@ -11,7 +10,19 @@ FILES INCLUDED
 		tserver.c
 		makefile
 	
-DESIGN DECISIONS
+LAUNCH INSTRUCTIONS
+	Navigate to the server directory. 
+	Run make. 
+	Initiate the server with the command 'myCald <serverType> <portNum>', e.g. './myCald threaded 9770'
+
+	Navigate to ../client.
+	Run make.
+	Run the client with the appropriate arguments for your operation
 
 
-PROBLEMS ENCOUNTERED
+EVALUATION
+
+	ITERATIVE
+
+
+	MULTI-THREADED

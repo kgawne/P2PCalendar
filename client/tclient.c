@@ -329,8 +329,8 @@ int main(int argc, char *argv[]){
 	if(DEBUG) printf("client: sent xmlSize--%d\n", xml_size);
 
 	//Send data to server
-	send(socket_fd, &doc, xml_size, 0);
-	if (DEBUG) printf("Sending sxml----%s\n",doc);
+	send(socket_fd, doc, xml_size, 0);
+	if (DEBUG) printf("client: sending xml----%s\n", (char*) doc);
 
 	//Handle server response...
 
