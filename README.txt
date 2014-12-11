@@ -15,7 +15,7 @@ LAUNCH INSTRUCTIONS
 
 	Navigate to the server directory. 
 	Run make. 
-	Initiate the server with the command 'myCald <serverType> <portNum>', e.g. './myCald threaded 9770'
+	Initiate the server with the command './mycald <serverType> <portNum>', e.g. './mycald threaded 9770'
 
 	Navigate to ../client.
 	If necessary, alter the .myCal file to appropriate specs. No spaces.

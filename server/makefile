@@ -1,7 +1,7 @@
-all: myCald
+all: mycald
 
-myCald: tserver.c
-	gcc `xml2-config --cflags --libs` tserver.c -o myCald -lpthread -I /usr/include/libxml2/ -Wall
+mycald: tserver.c
+	gcc `xml2-config --cflags --libs` tserver.c -o mycald -lpthread -I /usr/include/libxml2/ -Wall
 
 clean:
-	rm -f myCald
+	rm -f mycald

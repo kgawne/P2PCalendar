@@ -289,6 +289,15 @@ void *thread_handler(void *sockfd){
 		if (DEBUG) printf("server: sending response----%s\n",text);
 
 
+	} else if (xmlStrcmp(command,(xmlChar *) "update") == 0) {
+		//Find correct calendar
+
+		//Search for matching time or date
+
+		//Update node with new info
+
+		//Send response
+
 	} else if (xmlStrcmp(command,(xmlChar *) "remove") == 0) {
 
 		xmlNodePtr cmd_time;
@@ -321,7 +330,7 @@ void *thread_handler(void *sockfd){
 			saved_root = xmlNewNode(NULL,  (xmlChar*) calendarName);
 			xmlDocSetRootElement(saved_cal,saved_root);	
 		}
-		
+
 		saved_root = xmlDocGetRootElement(saved_cal)->xmlChildrenNode;
 		cur = xmlDocGetRootElement(in_command)->xmlChildrenNode;
 		while (saved_root != NULL ){
@@ -340,7 +349,7 @@ void *thread_handler(void *sockfd){
 		}
 
 	} else if (xmlStrcmp(command,(xmlChar *) "get") == 0) {
-// 	GET goes here
+			// 	GET goes here
 		if (stat("calendars", &st) == -1){
 			mkdir("calendars", 0777);
 			printf("Made new calendar folder.\n");
@@ -410,16 +419,6 @@ void *thread_handler(void *sockfd){
 
 	return 0;
 }
-
-// int getIntFromTree(xmlDocPtr doc, xmlNodePtr cur, char *type){
-// 	while (cur != NULL){
-// 		if (xmlStrcmp(cur->name, (xmlChar *)type) == 0){
-// 			return(atoi(xmlNodeListGetString(in_command, cur->xmlChildrenNode,1)))
-// 		} 
-// 		cur = cur->next;
-// 	}
-// 	return -1;
-// }
 
 void iterative_handler(void *sockfd){
 	//get the socket descriptor

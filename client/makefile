@@ -1,7 +1,7 @@
-all: myCal
+all: mycal
 
-myCal: tclient.c
-	gcc `xml2-config --cflags --libs` tclient.c -o myCal -lpthread -I /usr/include/libxml2/
+mycal: tclient.c
+	gcc `xml2-config --cflags --libs` tclient.c -o mycal -lpthread -I /usr/include/libxml2/
 
 clean:
-	rm -f myCal
+	rm -f mycal
