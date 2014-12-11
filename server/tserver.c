@@ -1,7 +1,7 @@
 //Kelly Gawne and Jack Magiera
-//Thermo sensor server
+//Calendar server
 //Compile: make
-//Usage: ./thermd
+//Usage: ./myCald
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -12,15 +12,15 @@
 #include <netdb.h>
 #include <arpa/inet.h>
 #include <netinet/in.h>
-
 #include <pthread.h>
 #include <time.h>
-#include "sensor_data.h"
+#include <fcntl.h>
+#include <unistd.h>
 
 #define DEBUG 1
 #define MAXBUFFLEN 1024 //max nmber of bytes at once
 
-pthread_mutex_t mutex1 = PTHREAD_MUTEX_INITIALIZER;
+int threaded = 0; //flag for threaded/iterative
 
 //return a sockaddr for IPv4 or IPv6
 void *get_sockaddr(struct sockaddr *sa){
@@ -36,10 +36,6 @@ int bindToPort(char* portNum){ //bind to that port. Returns sockListen_fd
 	struct addrinfo hints, *serverInfo, *p;
 	int err;
 	int yes = 1;
-	int numbytes;
-	char buf[MAXBUFFLEN];
-	socklen_t addr_len;
-	char s [INET6_ADDRSTRLEN];
 
 	memset(&hints, 0, sizeof hints);
 	hints.ai_family = AF_UNSPEC; //ipv4 or ipv6
@@ -83,18 +79,6 @@ int bindToPort(char* portNum){ //bind to that port. Returns sockListen_fd
 	return sockListen_fd;
 }
 
-void getFilename(char filename[25]){
-	time_t timer;
-    char buffer[25];
-    struct tm* tm_info;
-
-    time(&timer);
-    tm_info = localtime(&timer);
-
-    strftime(buffer, 25, "%Y:%m:%d%H:%M:%S", tm_info);
-    strcpy(filename, buffer);
-}
-
 void *thread_handler(void *sockfd){
  	//Get the socket descriptor
     int clientfd = *(int*)sockfd;
@@ -103,49 +87,34 @@ void *thread_handler(void *sockfd){
     if (DEBUG) printf("Inside thread\n");
 	//read in client data
 
-    //if (packet.action_req == 0){
-
-	//Get Timestamp
-	time_t timer;
-	struct tm* tm_info;
-    time(&timer);
-    tm_info = localtime(&timer); //store reading in log file (ex: g09_2014_11_student02)
-
-	//Get filepath
-	char filepath[256];
-	char filename[25];
-	strftime(filename, 25, "g09_%Y_%m_", tm_info); 
-	//strcat(filename, packet1.host_name); //add hostname
-	if (DEBUG) printf("Writing to filename '%s': ",filename);
-	sprintf(filepath, "/var/log/therm/error/%s", filename);
-
-	pthread_mutex_lock(&mutex1);
-	//Open Log
-	FILE *filePtr = fopen(filepath, "w+");
-
-	char buffer[256];
-	strftime(buffer, 256, "%Y %m %d %H %M ", tm_info); //add sensor readings
-	// char sensorbuf[25];
-	// sprintf(sensorbuf, "%f.2 %f.2\n", packet1.reading_val, packet2.reading_val);
-	// strcat(buffer, sensorbuf);
-	if (DEBUG) printf("'%s'", buffer);
-	fseek(filePtr, 0, SEEK_END);
-	fwrite(buffer, sizeof(char), strlen(buffer), filePtr);
-
-	fclose(filePtr);
-
-	pthread_mutex_unlock(&mutex1);
 
 	return 0;
 }
 
 int main(int argc, char* argv[]){ //remove arg input...?
 
-	char* portNum = "9770";
+	//Parse cmd line for server options
+	if (argc != 2){
+		puts("\t Please specify iterative or threaded style server");
+		puts("\t\tex: ./myCald threaded\tOR\t./myCald iterative");
+		exit(1);
+	}else{
+		if(!strcmp(argv[1], "iterative")){
+			threaded = 0;
+		}else if (!strcmp(argv[1], "threaded")){
+			threaded = 1;
+		}else{
+			puts("\t Please specify iterative or threaded style server");
+			puts("\t\tex: ./myCald threaded\tOR\t./myCald iterative");
+			exit(1);		
+		}
+	}
+
 
 	//Bind to port 9770
+	char* portNum = "9770";
 	int sockListen_fd = bindToPort(portNum);
-	int err;
+	int err = 0;
 
 	//Listen for connections
 	if ( listen(sockListen_fd, 20) != 0 )	{

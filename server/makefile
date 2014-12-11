@@ -1,7 +1,7 @@
-all: thermd
+all: myCald
 
-thermd: tserver.c
-	gcc tserver.c -o thermd -lpthread
+myCald: tserver.c
+	gcc tserver.c -o myCald -lpthread -Wall
 
 clean:
-	rm -f thermd
+	rm -f myCald
