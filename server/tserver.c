@@ -159,15 +159,50 @@ void *thread_handler(void *sockfd){
 		saved_root = xmlDocGetRootElement(saved_cal);
 		root = saved_root;
 		cur = xmlDocGetRootElement(in_command)->xmlChildrenNode;
-		while (cur != NULL && strcmp(cur->name,"event")==0){
-			xmlAddChild(root,cur);
-		 	cur=cur->next;
-		}
+		xmlAddChild(root,cur);
 		
 		xmlSaveFormatFile(calendarPath, saved_cal, 1);
 
 		// TODO: RESPONSE
 	} else if (xmlStrcmp(command,(xmlChar *) "remove") == 0) {
+
+		if (stat("calendars", &st) == -1){
+			mkdir("calendars", 0777);
+			printf("Made new calendar folder.\n");
+			// TODO: Just exit
+		}
+		strcpy(calendarPath,(char *)"calendars/");
+		cur = xmlDocGetRootElement(in_command)->xmlChildrenNode->xmlChildrenNode;
+		
+		while (cur != NULL){
+			if (xmlStrcmp(cur->name, (xmlChar *)"calendar") == 0){
+				if (DEBUG) printf("%s\n", cur->name);
+				strcpy(calendarName,xmlNodeListGetString(in_command, cur->xmlChildrenNode,1));
+				strcat(calendarPath, calendarName);
+			} 
+			cur = cur->next;
+		}
+		strcat(calendarPath,".xml");
+		if (stat (calendarPath, &st) == 0){
+			// exit
+		} else {
+			
+			saved_cal = xmlNewDoc("1.0");
+			saved_root = xmlNewNode(NULL,calendarName);
+			xmlDocSetRootElement(saved_cal,saved_root);	
+		}
+		saved_root = xmlDocGetRootElement(saved_cal)->xmlChildrenNode;
+		cur = xmlDocGetRootElement(in_command)->xmlChildrenNode;
+		while (saved_root != NULL ){
+			if (xmlStrcmp(saved_root->name, "event")==0){
+				cur = saved_root->xmlChildrenNode;
+				while (cur != NULL ){
+					printf("%s\n", cur->name);
+					cur=cur->next;
+				}
+			}
+		 	saved_root=saved_root->next;
+		}
 
 	} else if (xmlStrcmp(command,(xmlChar *) "get") == 0) {
 // 	GET goes here
