@@ -1,7 +1,7 @@
 //Kelly D Gawne and Jack Magiera
 // Calendar client. Takes in cmd line input
 //compile: make
-//run: ./myCal <arguments>
+//run: ./mycal <arguments>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -101,7 +101,8 @@ int main(int argc, char *argv[]){
 
 		time_t rawStart = convertDateTime( inDate, inTime);
 		if(DEBUG) printf("CONVERTED TIME returned: %d\n", rawStart);
-		// printf("Current time = %s", ctime(&rawStart));
+		if(DEBUG) printf("Current time = %s", ctime(&rawStart));
+
 		int duration_sec = atof(argv[5]) * 60 * 60;
 		time_t rawEnd = rawStart + duration_sec;
 
@@ -248,7 +249,7 @@ int main(int argc, char *argv[]){
 	hints.ai_socktype = SOCK_STREAM;
 
 	//Read in server info
-	FILE *serverFile = fopen(".myCal", "r");
+	FILE *serverFile = fopen(".mycal", "r");
 	if (serverFile == NULL){
 		printf(".myCal file cannot be opened.\n");
 		exit(1);
@@ -303,7 +304,6 @@ int main(int argc, char *argv[]){
 
 		//Print response
 		printf("%s\n", buffer);
-		//???
 
 	}else if (strcmp(cmd, "get") || strcmp(cmd, "getslow")){
 		//Get number of events
